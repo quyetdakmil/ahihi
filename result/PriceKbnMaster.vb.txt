@@ -1,0 +1,191 @@
+
+SELECT 券種m_ad.*, 金額階層区分マスタ.金額階層区分名 
+ , 券種mo_ad.券種名 As 券種名（英）, 券種mo_ad.券種名略称 As 券種名略称（英） 
+FROM 券種m_ad 
+LEFT JOIN 金額階層区分マスタ ON 券種m_ad.金額階層区分cd = 金額階層区分マスタ.金額階層区分cd 
+                                AND  券種m_ad.ユーザーコード = 金額階層区分マスタ.ユーザーコード 
+LEFT JOIN 券種mo_ad ON 券種m_ad.ユーザーコード = 券種mo_ad.ユーザーコード 
+AND 券種m_ad.券種 = 券種mo_ad.券種 
+AND 券種m_ad.金額階層区分cd = 券種mo_ad.金額階層区分cd 
+WHERE 券種m_ad.ユーザーコード = ).Append(userID
+ AND 券種m_ad.金額階層区分cd = ).Append(wkFilter
+ ORDER BY 券種m_ad.表示順位, 券種m_ad.券種, 券種m_ad.金額階層区分cd ASC 
+
+SELECT MAX("券種") AS NO FROM "券種m_ad""
+ WHERE "ユーザーコード" = ").Append(userID
+
+SELECT MAX("表示順位") AS NO FROM "券種m_ad""
+ WHERE "ユーザーコード" = ").Append(userID
+
+INSERT INTO 券種m_ad 
+ (ユーザーコード,券種,券種名,券種名略称,券種区分,ペアセット通し券番号,前売当日区分,引換券使用フラグ,枚数単位,単価,大小区分,登録区分,表示色,更新担当者コード,更新日,表示順位,金額階層区分CD 
+ (ユーザーコード,券種,券種名,券種名略称,券種区分,ペアセット通し券番号,前売当日区分,引換券使用フラグ,枚数単位,単価,大小区分,登録区分,表示色,更新担当者コード,更新日,表示順位,割引フラグ,金額階層区分cd 
+ ) VALUES (
+  {0}, userID
+, {0}, item.PriceKbnCode
+,b2n('{0}'), item.PriceKbnName
+,b2n('{0}'), item.PriceKbnNameRK
+, {0}, item.PriceKbn
+, {0}, 0)                                         'ペアセット通し券番号(使用しない
+, {0}, item.TicketKbnCode
+, {0}, 0)                                         '引換券使用フラグ(使用しない
+, {0}, item.PriceKbnCount
+, {0}, item.PriceKbnPrice
+, {0}, item.PriceKbnBS
+, {0}, item.RegKbn
+, {0}, 0
+,b2n('{0}'), updateID
+,b2n('{0}'), Date.Now.ToString(yyyy/MM/dd HH:mm:ss)
+, {0}, item.DisplayOrder
+, {0}, Convert.ToInt32(item.IsDiscount)
+, {0}, item.PriceLayerCD
+ ) 
+
+INSERT INTO 券種mo_ad 
+ (ユーザーコード,券種,券種名,券種名略称,金額階層区分cd,更新担当者コード,更新日 
+ ) VALUES (
+  {0}, userID
+, {0}, item.PriceKbnCode
+,b2n('{0}'), item.PriceKbnNameEng
+,b2n('{0}'), item.PriceKbnNameRKEng
+, {0}, item.PriceLayerCD
+,b2n('{0}'), updateID
+,b2n('{0}'), Date.Now.ToString(yyyy/MM/dd HH:mm:ss)
+ ) 
+
+SELECT MAX("表示順位") AS NO FROM "券種m_ad""
+ WHERE "ユーザーコード" = ").Append(userID
+
+UPDATE "券種m_ad" "
+   SET "
+ "券種名" = b2n('{0}')", item.PriceKbnName
+,"券種名略称" = b2n('{0}')", item.PriceKbnNameRK
+,"券種区分" = b2n('{0}')", item.PriceKbn
+,"前売当日区分" = b2n('{0}')", item.TicketKbnCode
+,"枚数単位" = b2n('{0}')", item.PriceKbnCount
+,"単価" = b2n('{0}')", item.PriceKbnPrice
+,"大小区分" = b2n('{0}')", item.PriceKbnBS
+,"登録区分" = b2n('{0}')", item.RegKbn
+,"表示順位" = b2n('{0}')", item.DisplayOrder
+,"割引フラグ" = b2n('{0}')", Convert.ToInt32(item.IsDiscount)
+,"更新担当者コード" = b2n('{0}')", updateID
+,"更新日" = b2n('{0}')", Date.Now.ToString("yyyy/MM/dd HH:mm:ss")
+ WHERE "ユーザーコード" = ").Append(userID
+   AND "券種" = ").Append(item.PriceKbnCode
+   AND "金額階層区分cd" = ").Append(item.PriceLayerCD
+
+UPDATE "券種MO_AD" "
+   SET "
+ "券種名" = '{0}'", item.PriceKbnNameEng
+,"券種名略称" = '{0}'", item.PriceKbnNameRKEng
+,"更新担当者コード" = '{0}'", updateID
+,"更新日" = '{0}'", Date.Now.ToString("yyyy/MM/dd HH:mm:ss")
+ WHERE "ユーザーコード" = ").Append(userID
+   AND "券種" = ").Append(item.PriceKbnCode
+   AND "金額階層区分CD" = ").Append(item.PriceLayerCD
+
+SELECT COUNT(*) AS 取得数 FROM "券種mo_ad""
+ WHERE "ユーザーコード" = ").Append(userID
+   AND "券種" = ").Append(item.PriceKbnCode
+   AND "金額階層区分cd" = ").Append(item.PriceLayerCD
+
+INSERT INTO 券種mo_ad 
+ (ユーザーコード,券種,券種名,券種名略称,金額階層区分cd,更新担当者コード,更新日 
+ ) VALUES (
+  {0}, userID
+, {0}, item.PriceKbnCode
+,b2n('{0}'), item.PriceKbnNameEng
+,b2n('{0}'), item.PriceKbnNameRKEng
+, {0}, item.PriceLayerCD
+,b2n('{0}'), updateID
+,b2n('{0}'), Date.Now.ToString(yyyy/MM/dd HH:mm:ss)
+ ) 
+
+UPDATE "券種mo_ad" "
+   SET "
+ "券種名" = b2n('{0}')", item.PriceKbnNameEng
+,"券種名略称" = b2n('{0}')", item.PriceKbnNameRKEng
+,"更新担当者コード" = b2n('{0}')", updateID
+,"更新日" = b2n('{0}')", Date.Now.ToString("yyyy/MM/dd HH:mm:ss")
+ WHERE "ユーザーコード" = ").Append(userID
+   AND "券種" = ").Append(item.PriceKbnCode
+   AND "金額階層区分cd" = ").Append(item.PriceLayerCD
+
+
+UPDATE 券種 
+   SET 
+ 券種名 = '{0}', item.PriceKbnName
+,券種名略称 = '{0}', item.PriceKbnNameRK
+,券種区分 = '{0}', item.PriceKbn
+,前売当日区分 = '{0}', item.TicketKbnCode
+,枚数単位 = '{0}', item.PriceKbnCount
+,単価 = '{0}', item.PriceKbnPrice
+,大小区分 = '{0}', item.PriceKbnBS
+,登録区分 = '{0}', item.RegKbn
+,表示順位 = '{0}', item.DisplayOrder
+,更新担当者コード = '{0}', updateID
+,更新日 = '{0}', Date.Now.ToString(yyyy/MM/dd HH:mm:ss)
+ WHERE ユーザーコード = ).Append(userID
+   AND 券種 = ).Append(item.PriceKbnCode
+   AND 金額階層区分CD = ).Append(item.PriceLayerCD
+   AND 公演コード  IN 
+     (
+       SELECT 公演コード FROM 公演 
+        WHERE ユーザーコード =  ).Append(userID
+    AND 公演開始日 >= '{0}', Date.Now.ToString(yyyy/MM/dd)
+      )
+
+
+UPDATE 料金 
+   SET 
+ 料金 = '{0}', item.PriceKbnPrice
+,更新担当者コード = '{0}', updateID
+,更新日 = '{0}', Date.Now.ToString(yyyy/MM/dd HH:mm:ss)
+ WHERE ユーザーコード = ).Append(userID
+   AND 券種 = ).Append(item.PriceKbnCode
+   AND 公演コード 
+ IN ( 
+      SELECT 公演コード 
+      FROM 公演 
+      WHERE ユーザーコード = ).Append(userID
+        AND 金額階層区分CD = ).Append(item.PriceLayerCD
+  AND 公演開始日 >= '{0}', Date.Now.ToString(yyyy/MM/dd)
+    )
+
+
+UPDATE 基本料金 
+   SET 
+ 料金 = '{0}', item.PriceKbnPrice
+,更新担当者コード = '{0}', updateID
+,更新日 = '{0}', Date.Now.ToString(yyyy/MM/dd HH:mm:ss)
+ WHERE ユーザーコード = ).Append(userID
+   AND 券種 = ).Append(item.PriceKbnCode
+   AND 公演コード 
+ IN ( 
+      SELECT 公演コード 
+      FROM 公演 
+      WHERE ユーザーコード = ).Append(userID
+        AND 金額階層区分CD = ).Append(item.PriceLayerCD
+  AND 公演開始日 >= '{0}', Date.Now.ToString(yyyy/MM/dd)
+    )
+
+DELETE FROM "券種m_ad" "
+ WHERE "ユーザーコード" = {0} ", userID
+ AND "券種" = {0} ", priceKbnID
+
+DELETE FROM "券種mo_ad" "
+ WHERE "ユーザーコード" = {0} ", userID
+ AND "券種" = {0} ", priceKbnID
+
+
+SELECT COUNT(公演コード) AS 件数 
+FROM 券種 
+WHERE ユーザーコード = ).Append(userID
+ AND 券種 = ).Append(priceKbnID
+   AND 公演コード IN 
+      (
+        SELECT 公演コード FROM 公演 
+         WHERE ユーザーコード =  ).Append(userID
+     AND 公演終了日 >= '{0}', Date.Now.ToString(yyyy/MM/dd)
+     AND 公演開始日 >= '{0}', Date.Now.ToString(yyyy/MM/dd)
+      )

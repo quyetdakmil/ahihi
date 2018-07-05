@@ -1,0 +1,228 @@
+
+
+ SELECT  
+    販売公演.ユーザーコード 
+    ,販売公演.公演コード 
+    ,販売公演.会員区分 AS 会員区分コード 
+    ,販売公演.予約期間区分 
+    ,販売公演.取扱フラグ 
+    ,NVL(会員区分.会員名称,'一般') AS 会員区分 
+    ,CASE 販売公演.予約期間区分 
+        WHEN 1 THEN '先行' 
+        WHEN 2 THEN '一般' 
+     END AS 期間 
+    ,CASE 販売公演.取扱フラグ 
+        WHEN 1 THEN '○' 
+        ELSE '×' 
+     END AS 表示有無 
+    ,販売公演.表示内容 
+    ,販売公演.表示開始日時 
+    ,販売公演.表示終了日時 
+    ,' ' AS 完売チェック 
+ FROM 
+    (
+    SELECT  
+        販売条件.ユーザーコード 
+        ,販売条件.公演コード 
+        ,販売条件.予約期間区分 
+        ,販売条件.会員区分 
+        ,ネット公演一覧表示_ad.取扱フラグ 
+        ,ネット公演一覧表示_ad.表示内容 
+        ,ネット公演一覧表示_ad.表示開始日時 
+        ,ネット公演一覧表示_ad.表示終了日時 
+    FROM 
+        販売条件 ,ネット公演一覧表示_ad 
+    WHERE 販売条件.ユーザーコード =  & inUserID
+      AND 販売条件.公演コード = ' & inShowID & '
+      AND 販売条件.公演取扱フラグ = 1 
+      AND 販売条件.会員区分       <> 0 
+      AND 販売条件.ユーザーコード = ネット公演一覧表示_ad.ユーザーコード(+) 
+      AND 販売条件.公演コード     = ネット公演一覧表示_ad.公演コード(+) 
+      AND 販売条件.予約期間区分   = ネット公演一覧表示_ad.予約期間区分(+) 
+      AND 販売条件.会員区分       = ネット公演一覧表示_ad.会員区分(+) 
+      AND 販売条件.公演取扱フラグ = ネット公演一覧表示_AD.取扱フラグ(+) 
+    AND  & inFilter
+    ) 販売公演 
+ LEFT JOIN 会員区分 ON 販売公演.ユーザーコード = 会員区分.ユーザーコード
+                        AND 販売公演.会員区分 = 会員区分.会員区分
+ ORDER BY 
+    販売公演.会員区分 
+    ,販売公演.予約期間区分 
+
+ INSERT INTO  ネット公演一覧表示_ad 
+     ( 
+        ユーザーコード 
+        ,公演コード 
+        ,予約期間区分 
+        ,会員区分  
+        ,取扱フラグ 
+        ,表示内容 
+        ,表示開始日時 
+        ,表示終了日時 
+        ,更新担当者コード 
+        ,更新日 
+        ) VALUES ( 
+        :pmユーザーコード 
+        ,:pm公演コード 
+        ,:pm予約期間区分 
+        ,:pm会員区分  
+        ,:pm取扱フラグ 
+        ,:pm表示内容 
+        ,:pm表示開始日時 
+        ,:pm表示終了日時 
+        ,' & UpdateID & ' 
+        ,' & time & ' 
+        )  
+ ON CONFLICT (
+        ユーザーコード 
+        , 公演コード  
+        , 予約期間区分 
+        , 会員区分  
+        )  
+
+ DO UPDATE SET 
+        取扱フラグ          = :pm取扱フラグ 
+        ,表示内容           = :pm表示内容 
+        ,表示開始日時       = :pm表示開始日時 
+        ,表示終了日時       = :pm表示終了日時 
+        ,更新担当者コード   = ' & UpdateID & ' 
+        ,更新日             = ' & time & ' 
+
+SELECT "公演開始日","公演名" FROM "公演" "
+ WHERE "ユーザーコード"  = {0} ", UserID
+ AND  "公演コード" = '{0}' ", CopyToShowID
+
+SELECT "公演開始日","公演名" FROM "公演" "
+ WHERE "ユーザーコード"  = {0} ", UserID
+ AND  "公演コード" = '{0}' ", CopyToShowID
+
+DELETE FROM "ネット公演一覧表示_ad"  "
+ WHERE "ユーザーコード"  = {0} ", UserID
+ AND  "公演コード" = '{0}' ", CopyToShowID
+
+ INSERT INTO ネット公演一覧表示_ad ( 
+   ユーザーコード,
+   公演コード,
+   予約期間区分,
+   会員区分, 
+   取扱フラグ,
+   表示内容,
+   表示開始日時,
+   表示終了日時, 
+   更新担当者コード,
+   更新日) 
+
+ SELECT    "
+   "ユーザーコード", "
+   '{0}' AS "公演コード",", CopyToShowID
+   "予約期間区分", "
+   "会員区分", "
+   "取扱フラグ", "
+   "表示内容", "
+   "表示開始日時", "
+   "表示終了日時", "
+'{0}' AS "更新担当者コード",", TantouID
+'{0}' AS "更新日" ", Format(nowDate, "yyyy/MM/dd HH:mm:ss")
+ FROM  "ネット公演一覧表示_ad"  "
+ WHERE "ユーザーコード"  = {0} ", UserID
+ AND "公演コード" = '{0}' ", ShowID
+
+DELETE FROM "ネット公演一覧表示オプション"  "
+ WHERE "ユーザーコード"  = {0} ", UserID
+ AND  "公演コード" = '{0}' ", CopyToShowID
+
+ INSERT INTO ネット公演一覧表示オプション ( 
+   ユーザーコード,
+   公演コード,
+   予約期間区分,
+   会員区分, 
+   表示内容,
+   更新担当者コード,
+   更新日) 
+
+ SELECT    "
+   "ユーザーコード", "
+   '{0}' AS "公演コード",", CopyToShowID
+   "予約期間区分", "
+   "会員区分", "
+   "表示内容", "
+'{0}' AS "更新担当者コード",", TantouID
+'{0}' AS "更新日" ", Format(nowDate, "yyyy/MM/dd HH:mm:ss")
+ FROM  "ネット公演一覧表示オプション"  "
+ WHERE "ユーザーコード"  = {0} ", UserID
+ AND "公演コード" = '{0}' ", ShowID
+
+SELECT * FROM "ネット公演一覧表示_ad""
+ WHERE "ユーザーコード" = "
+{0}", UserID
+ AND "公演コード" = "
+'{0}'", ShowID
+
+SELECT 公演日,ステージコード 
+ FROM 公演日程 
+ WHERE ユーザーコード  = {0} , UserID
+ AND  公演コード = '{0}' , ShowID
+ AND 公演フラグ = 1 
+
+SELECT 公演日程.公演日,公演日程.ステージコード,公演.公演種別 
+ FROM 公演日程 
+ LEFT JOIN 公演 
+ ON  公演日程.ユーザーコード = 公演.ユーザーコード 
+ AND 公演日程.公演コード = 公演.公演コード 
+ WHERE 公演日程.ユーザーコード = {0} , UserID
+ AND  公演日程.公演コード = '{0}' , ShowID
+ AND 公演フラグ = 1 
+
+       SELECT 
+           COUNT(座席連番) AS 空席数 
+       FROM 販売座席エリア 
+ WHERE ユーザーコード = {0}, UserID
+   AND 公演コード     = '{0}', ShowID
+   AND 会員区分       = '{0}', MemberKBN
+   AND 公演日         = '{0}', dr_ShowDate(ix)
+   AND ステージコード = {0}, dr_StageCD(ix)
+         AND NOT EXISTS 
+              (　
+
+
+                SELECT DISTINCT 座席連番 
+                FROM 
+                  ( 
+                     SELECT 座席連番  FROM 座席販売 
+               WHERE 座席販売.ユーザーコード = {0}, UserID
+                 AND 座席販売.公演コード     = '{0}', ShowID
+                 AND 座席販売.会員区分       = '{0}', MemberKBN
+                 AND 座席販売.公演日         = '{0}', dr_ShowDate(ix)
+                 AND 座席販売.ステージコード = {0}, dr_StageCD(ix)
+                       AND 座席販売.確定日 IS NOT NULL 
+                  UNION ALL 
+
+                    SELECT 座席連番  FROM 座席 
+              WHERE 座席.ユーザーコード = {0}, UserID
+                AND 座席.公演コード     = '{0}', ShowID
+                AND 座席.公演日         = '{0}', dr_ShowDate(ix)
+                AND 座席.ステージコード = {0}, dr_StageCD(ix)
+                      AND 座席.グループコード <> 0 
+                AND 座席.グループコード <> {0}, groupID
+                  UNION ALL
+
+
+                    SELECT 座席連番  FROM 抽選予約座席,
+                         (SELECT 抽選予約.ユーザーコード 
+                                 ,抽選予約.抽選予約番号 
+                          FROM   抽選予約 ,抽選予約明細 
+                          WHERE 抽選予約.ユーザーコード      = 抽選予約明細.ユーザーコード 
+                            AND  抽選予約.抽選予約番号       = 抽選予約明細.抽選予約番号 
+                      AND  抽選予約.ユーザーコード     = {0}, UserID
+                      AND  抽選予約.公演コード         = '{0}', ShowID
+                      AND  抽選予約.会員区分           = '{0}', MemberKBN
+                      AND  抽選予約明細.公演日         = '{0}', dr_ShowDate(ix)
+                      AND  抽選予約明細.ステージコード = {0}, dr_StageCD(ix)
+                         ) 抽選予約 
+                    WHERE 
+                         抽選予約座席.ユーザーコード = 抽選予約.ユーザーコード 
+                     AND 抽選予約座席.抽選予約番号   = 抽選予約.抽選予約番号 
+                  ) 済座席 
+               WHERE 
+                  済座席.座席連番 = 販売座席エリア.座席連番 
+              ) 

@@ -1,0 +1,5 @@
+
+SELECT 金額階層区分cd, 金額階層区分名,表示色 
+FROM 金額階層区分マスタ 
+WHERE ユーザーコード = ).Append(userID
+ ORDER BY 金額階層区分cd ASC 

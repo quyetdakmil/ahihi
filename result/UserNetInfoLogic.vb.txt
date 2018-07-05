@@ -1,0 +1,45 @@
+
+SELECT COUNT(*) CNT FROM "ネットお知らせ" "
+ WHERE "ユーザーコード" = {0} ", UserID
+   AND "お知らせ区分" = '{0}'", UserNetInfo(ix).InfoKbn
+
+INSERT INTO ネットお知らせ ( 
+     ユーザーコード,
+     お知らせ区分,
+     表示開始日時１,
+     表示終了日時１,
+     表示内容１,
+     表示開始日時２,
+     表示終了日時２,
+     表示内容２,
+     表示位置,
+     更新担当者コード,
+     更新日)
+VALUES ( 
+      & UserID & , 
+      & UserNetInfo(ix).InfoKbn & , 
+     b2n(' & UserNetInfo(ix).DispSTime1 & '), 
+     b2n(' & UserNetInfo(ix).DispETime1 & '), 
+     b2n(':DispContents1), 
+     b2n(' & UserNetInfo(ix).DispSTime2 & '), 
+     b2n(' & UserNetInfo(ix).DispETime2 & '), 
+     b2n(':DispContents2'), 
+      & UserNetInfo(ix).DispLayout & , 
+     b2n(' & UpdateID & '),
+     b2n(' & nowDateStr & '))
+
+UPDATE "ネットお知らせ" SET "
+     "ユーザーコード"  = " & UserID & ","
+     "お知らせ区分"  = " & UserNetInfo(ix).InfoKbn & ","
+     "表示開始日時１"  = b2n('" & UserNetInfo(ix).DispSTime1 & "'),"
+     "表示終了日時１"  = b2n('" & UserNetInfo(ix).DispETime1 & "'),"
+     "表示内容１"  = b2n(':DispContents1'),"
+     "表示開始日時２"  = b2n('" & UserNetInfo(ix).DispSTime2 & "'),"
+     "表示終了日時２"  = b2n('" & UserNetInfo(ix).DispETime2 & "'),"
+     "表示内容２"  = b2n(':DispContents2'),"
+     "表示位置" = " & UserNetInfo(ix).DispLayout & ","
+     "更新担当者コード" = b2n('" & UpdateID & "'),"
+     "更新日" = b2n('" & nowDateStr & "')"
+     WHERE "
+     "ユーザーコード"  = " & UserID & " AND "
+     "お知らせ区分"  = " & UserNetInfo(ix).InfoKbn

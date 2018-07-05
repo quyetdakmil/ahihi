@@ -1,0 +1,283 @@
+
+
+ SELECT  
+     販売公演.ユーザーコード 
+    ,販売公演.公演コード 
+    ,販売公演.会員区分 
+    ,販売公演.予約期間区分 
+    ,販売公演.取扱フラグ 
+    ,販売公演.表示内容 
+    ,販売公演.表示開始日時 
+    ,販売公演.表示終了日時 
+    ,販売公演.表示内容（英） 
+ FROM 
+    (
+    SELECT  
+        販売条件.ユーザーコード 
+        ,販売条件.公演コード 
+        ,販売条件.予約期間区分 
+        ,販売条件.会員区分 
+        ,ネット公演一覧表示_AD.取扱フラグ 
+        ,ネット公演一覧表示_AD.表示内容 
+        ,ネット公演一覧表示_AD.表示開始日時 
+        ,ネット公演一覧表示_AD.表示終了日時 
+        ,ネット公演一覧表示オプション.表示内容 As 表示内容（英） 
+    FROM 
+        販売条件 ,ネット公演一覧表示_AD ,ネット公演一覧表示オプション 
+    WHERE 販売条件.ユーザーコード =  & inUserID
+      AND 販売条件.公演コード = ' & inShowID & '
+      AND 販売条件.会員区分       <> 0 
+      AND 販売条件.ユーザーコード = ネット公演一覧表示_AD.ユーザーコード(+) 
+      AND 販売条件.公演コード     = ネット公演一覧表示_AD.公演コード(+) 
+      AND 販売条件.予約期間区分   = ネット公演一覧表示_AD.予約期間区分(+) 
+      AND 販売条件.会員区分       = ネット公演一覧表示_AD.会員区分(+) 
+      AND 販売条件.ユーザーコード = ネット公演一覧表示オプション.ユーザーコード(+) 
+      AND 販売条件.公演コード     = ネット公演一覧表示オプション.公演コード(+) 
+      AND 販売条件.予約期間区分   = ネット公演一覧表示オプション.予約期間区分(+) 
+    AND  & inFilter
+    ) 販売公演 
+ ORDER BY 
+    販売公演.会員区分 
+    ,販売公演.予約期間区分 
+
+SELECT COUNT(*) AS "件数" "
+FROM "" & TableName & "" "
+WHERE "ユーザーコード" = " & userID & " "
+ AND "公演コード" = '" & showID & "' "
+ AND " & wkFilter
+
+UPDATE 公演オプション 
+   SET 
+ 英語表示 = {0} , setdata.ShowEnglish
+,公演名英 = b2n('{0}'), setdata.ShowNameEng
+,公演名副題英 = b2n('{0}'), setdata.ShowNameSubEng
+,表示会場名英 = b2n('{0}'), setdata.HallNameEng
+,問合せ先名英 = b2n('{0}'), setdata.InquiryNameEng
+,公演概要英 = b2n('{0}'), setdata.ShowOutLineWebEng
+,英語登録時区分 = b2n('{0}'), setdata.LastMemberKbn
+ WHERE ユーザーコード =  & userID &  
+   AND 公演コード = ' & setdata.ShowID & ' 
+
+INSERT INTO 公演日程オプション 
+ (ユーザーコード,公演コード,公演日,ステージコード,備考,表示公演日時,更新担当者コード,更新日 
+ ) VALUES (
+  {0} , userID
+,b2n('{0}'), setdata.ShowID
+,b2n('{0}'), setdata.ShowDate
+, {0} , setdata.StageID
+,'{0}', setdata.Note
+,'{0}', setdata.ShowDisp
+,b2n('{0}'), setdata.Note.Replace('c, '')
+,b2n('{0}'), setdata.ShowDisp.Replace('c, '')
+,b2n('{0}'), updateID
+,b2n('{0}'), Date.Now.ToString(yyyy/MM/dd HH:mm:ss)
+ ) 
+
+UPDATE 公演日程オプション 
+   SET 
+ 備考 = '{0}', setdata.Note
+,表示公演日時 = '{0}', setdata.ShowDisp
+ 備考 = b2n('{0}'), setdata.Note.Replace('c, '')
+,表示公演日時 = b2n('{0}'), setdata.ShowDisp.Replace('c, '')
+,更新担当者コード = b2n('{0}'), updateID
+,更新日 = b2n('{0}'), Date.Now.ToString(yyyy/MM/dd HH:mm:ss)
+ WHERE ユーザーコード =  & userID &  
+   AND 公演コード = ' & setdata.ShowID & ' 
+   AND 公演日 = ' & setdata.ShowDate & ' 
+   AND ステージコード =  & setdata.StageID &  
+
+INSERT INTO 席種オプション 
+ (ユーザーコード,公演コード,席種,席種名,席種名略称,ゲート,更新担当者コード,更新日 
+ ) VALUES (
+  {0} , userID
+,b2n('{0}'), setdata.ShowID
+, {0} , setdata.ClassID
+,'{0}', setdata.ClassName
+,'{0}', setdata.ClassNameR
+,b2n('{0}'), setdata.ClassName.Replace('c, '')
+,b2n('{0}'), setdata.ClassNameR.Replace('c, '')
+,b2n('{0}'), setdata.Gate
+,b2n('{0}'), updateID
+,b2n('{0}'), Date.Now.ToString(yyyy/MM/dd HH:mm:ss)
+ ) 
+
+UPDATE 席種オプション 
+   SET 
+ 席種名 = '{0}', setdata.ClassName
+,席種名略称 = '{0}', setdata.ClassNameR
+ 席種名 = b2n('{0}'), setdata.ClassName.Replace('c, '')
+,席種名略称 = b2n('{0}'), setdata.ClassNameR.Replace('c, '')
+,ゲート = b2n('{0}'), setdata.Gate
+,更新担当者コード = b2n('{0}'), updateID
+,更新日 = b2n('{0}'), Date.Now.ToString(yyyy/MM/dd HH:mm:ss)
+ WHERE ユーザーコード =  & userID & 
+   AND 公演コード = ' & setdata.ShowID & '
+   AND 席種 =  & setdata.ClassID & 
+
+INSERT INTO 席種備考オプション 
+ (ユーザーコード,公演コード,公演日,ステージコード,席種,席種説明,更新担当者コード,更新日 
+ ) VALUES (
+  {0} , userID
+,b2n('{0}'), setdata.ShowID
+,b2n('{0}'), setdata.ShowDate
+, {0} , setdata.StageID
+, {0} , setdata.ClassID
+,b2n('{0}'), setdata.ClassMemo
+,b2n('{0}'), updateID
+,b2n('{0}'), Date.Now.ToString(yyyy/MM/dd HH:mm:ss)
+ ) 
+
+UPDATE 席種備考オプション 
+   SET 
+ 席種説明 = b2n('{0}'), setdata.ClassMemo
+,更新担当者コード = b2n('{0}'), updateID
+,更新日 = b2n('{0}'), Date.Now.ToString(yyyy/MM/dd HH:mm:ss)
+ WHERE ユーザーコード =  & userID &  
+   AND 公演コード = ' & setdata.ShowID & ' 
+   AND 公演日 = ' & setdata.ShowDate & ' 
+   AND ステージコード =  & setdata.StageID &  
+   AND 席種 =  & setdata.ClassID &  
+
+INSERT INTO 券種オプション 
+ (ユーザーコード,公演コード,券種,券種名,券種名略称,更新担当者コード,更新日 
+ ) VALUES (
+  {0}, userID
+,b2n('{0}'), setdata.ShowID
+, {0} , setdata.PriceKbnID
+,'{0}', setdata.PriceKbnName
+,'{0}', setdata.PriceKbnNameR
+,b2n('{0}'), setdata.PriceKbnName.Replace('c, '')
+,b2n('{0}'), setdata.PriceKbnNameR.Replace('c, '')
+,b2n('{0}'), updateID
+,b2n('{0}'), Date.Now.ToString(yyyy/MM/dd HH:mm:ss)
+ ) 
+
+UPDATE 券種オプション 
+   SET 
+ 券種名 = '{0}', setdata.PriceKbnName
+,券種名略称 = '{0}', setdata.PriceKbnNameR
+ 券種名 = b2n('{0}'), setdata.PriceKbnName.Replace('c, '')
+,券種名略称 = b2n('{0}'), setdata.PriceKbnNameR.Replace('c, '')
+,更新担当者コード = b2n('{0}'), updateID
+,更新日 = b2n('{0}'), Date.Now.ToString(yyyy/MM/dd HH:mm:ss)
+ WHERE ユーザーコード =  & userID &  
+   AND 公演コード = ' & setdata.ShowID & ' 
+   AND 券種 =  & setdata.PriceKbnID &  
+
+INSERT INTO ネット公演一覧表示_AD 
+ (ユーザーコード,公演コード,予約期間区分,会員区分,取扱フラグ,表示内容,表示開始日時,表示終了日時,更新担当者コード,更新日 
+ ) VALUES (
+  {0}, userID
+,b2n('{0}'), setdata.ShowCD
+, {0} , setdata.ReserveKbn
+, {0} , setdata.MemberKBN
+, {0} , setdata.UseFlg
+,b2n('{0}'), setdata.Display
+,b2n('{0}'), setdata.DisplayStartTime
+,b2n('{0}'), setdata.DisplayEndTime
+,b2n('{0}'), updateID
+,b2n('{0}'), Date.Now.ToString(yyyy/MM/dd HH:mm:ss)
+ ) 
+
+INSERT INTO ネット公演一覧表示オプション 
+ (ユーザーコード,公演コード,予約期間区分,会員区分,表示内容,更新担当者コード,更新日 
+ ) VALUES (
+  {0}, userID
+,b2n('{0}'), setdata.ShowCD
+, {0} , setdata.ReserveKbn
+, {0} , setdata.MemberKBN
+,'{0}', setdata.DisplayEng
+,b2n(':pm表示内容') 
+,b2n('{0}'), updateID
+,b2n('{0}'), Date.Now.ToString(yyyy/MM/dd HH:mm:ss)
+ ) 
+
+UPDATE ネット公演一覧表示オプション 
+   SET 
+ 会員区分 = {0}, setdata.MemberKBN
+,表示内容 = '{0}', setdata.DisplayEng
+,表示内容 = b2n(':pm表示内容') 
+,更新担当者コード = b2n('{0}'), updateID
+,更新日 = b2n('{0}'), Date.Now.ToString(yyyy/MM/dd HH:mm:ss)
+ WHERE ユーザーコード =  & userID &  
+   AND 公演コード = ' & setdata.ShowCD & ' 
+   AND 予約期間区分 =  & setdata.ReserveKbn &  
+
+INSERT INTO 販売条件引取オプション 
+ (ユーザーコード,公演コード,予約期間区分,会員区分,取扱区分,引取方法,引取先名称,引取案内,更新担当者コード,更新日 
+ ) VALUES (
+  {0}, userID
+,b2n('{0}'), setdata.ShowID
+, {0} , setdata.ReserveKbn
+, {0} , setdata.MemberKbn
+, {0} , setdata.UseKbn
+, {0} , setdata.ReceiveKbn
+,b2n('{0}'), setdata.ReceiveName
+,b2n('{0}'), setdata.ReceiveGuide
+,b2n('{0}'), updateID
+,b2n('{0}'), Date.Now.ToString(yyyy/MM/dd HH:mm:ss)
+ ) 
+
+UPDATE 販売条件引取オプション 
+   SET 
+ 会員区分 =  {0} , setdata.MemberKbn
+,引取先名称 = b2n('{0}'), setdata.ReceiveName
+,引取案内 = b2n('{0}'), setdata.ReceiveGuide
+,更新担当者コード = b2n('{0}'), updateID
+,更新日 = b2n('{0}'), Date.Now.ToString(yyyy/MM/dd HH:mm:ss)
+ WHERE ユーザーコード =  & userID &  
+   AND 公演コード = ' & setdata.ShowID & ' 
+   AND 予約期間区分 =  & setdata.ReserveKbn &  
+   AND 取扱区分 =  & setdata.UseKbn &  
+   AND 引取方法 =  & setdata.ReceiveKbn &  
+
+UPDATE 通知メール公演 
+   SET 
+ 送信元メールアドレス = b2n('{0}'), setdata.SourceAddress
+,メール送信者名 = b2n('{0}'), setdata.SendName
+,メールタイトル = b2n('{0}'), setdata.SendTitle
+,本文 = b2n('{0}'), setdata.SendTet
+,署名 = b2n('{0}'), setdata.SendSignature
+,更新担当者コード = b2n('{0}'), updateID
+,更新日 = b2n('{0}'), Date.Now.ToString(yyyy/MM/dd HH:mm:ss)
+ WHERE ユーザーコード =  & userID &  
+   AND 公演コード = ' & setdata.ShowID & ' 
+   AND 送信先種別 =  & setdata.SendKbn &  
+   AND メールコード =  & setdata.MailKbn &  
+
+INSERT INTO 通知メール公演 
+ (ユーザーコード,公演コード,送信先種別,メールコード,送信元メールアドレス,メール送信者名,メールタイトル,本文,署名,更新担当者コード,更新日 
+ ) VALUES (
+  {0} , userID
+,b2n'({0}'), setmaildata.ShowID
+, {0} , setmaildata.SendKbn
+, {0} , setmaildata.MailKbn
+,b2n('{0}'0, setmaildata.SourceAddress
+,b2n('{0}'), setmaildata.SendName
+,b2n('{0}'), setmaildata.SendTitle
+,b2n('{0}'), setmaildata.SendTet
+,b2n('{0}'), setmaildata.SendSignature
+,b2n('{0}'), updateID
+,b2n('{0}'), Date.Now.ToString(yyyy/MM/dd HH:mm:ss)
+ ) 
+
+INSERT INTO ステージオプション 
+ (ユーザーコード,公演コード,ステージコード,ステージ名,ステージ名略称,更新担当者コード,更新日 
+ ) VALUES (
+  {0} , userID
+,b2n('{0}'), setdata.ShowID
+, {0} , setdata.StageID
+,b2n('{0}'), setdata.StageName
+,b2n('{0}'), setdata.StageNameR
+,b2n('{0}'), updateID
+,b2n('{0}'), Date.Now.ToString(yyyy/MM/dd HH:mm:ss)
+ ) 
+
+UPDATE ステージオプション 
+   SET 
+ ステージ名 = b2n('{0}'), setdata.StageName
+,更新担当者コード = b2n('{0}'), updateID
+,更新日 = b2n('{0}'), Date.Now.ToString(yyyy/MM/dd HH:mm:ss)
+ WHERE ユーザーコード =  & userID &  
+   AND 公演コード = ' & setdata.ShowID & ' 
+   AND ステージコード =  & setdata.StageID &  

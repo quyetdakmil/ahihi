@@ -1,0 +1,34 @@
+
+ SELECT T1.* , 
+        T2.ポータルサイト表示開始日時,T2.ポータルサイト表示終了日時, 
+        T2.ポータルサイト反映日時,T2.ポータルサイト反映対象 
+ FROM 公演 T1,公演オプション T2,ジャンル T3,ジャンル小分類 T4 
+ WHERE T1.ユーザーコード =  & UserID
+ AND ( & wkFilter & )
+ AND T1.ユーザーコード = T3.ユーザーコード 
+ AND T1.ジャンルコード = T3.ジャンルコード 
+ AND T3.ユーザーコード = T4.ユーザーコード 
+ AND T3.ジャンルコード = T4.ジャンルコード 
+ AND T1.ジャンル小分類コード = T4.ジャンル小分類コード 
+ AND T1.ユーザーコード = T2.ユーザーコード 
+ AND T1.公演コード     = T2.公演コード 
+ AND T2.ポータルサイト公開区分 = 1 
+ ORDER BY T1.公演開始日,T1.公演コード ASC
+
+SELECT COUNT(*) CNT "
+ FROM "公演" T1 "
+ WHERE T1."ユーザーコード" = {0}", UserID
+   AND T1."公演コード" = '{0}'", showid(ix)
+   AND T1."公演終了日" >= '{0}'", Format(time, "yyyy/MM/dd")
+
+SELECT COUNT(*) CNT "
+ FROM "公演オプション" T2 "
+ WHERE T2."ユーザーコード" = {0}", UserID
+   AND T2."公演コード" = '{0}'", showid(ix)
+   AND T2."ポータルサイト表示終了日時" >= '{0}'", Format(time, "yyyy/MM/dd HH:mm")
+
+UPDATE 公演オプション A SET 
+  A.ポータルサイト反映対象 = 1 
+ WHERE A.ユーザーコード = {0}, UserID
+   AND A.公演コード = b2n('{0}'), showid(ix)
+ AND A.ポータルサイト公開区分 = 1 

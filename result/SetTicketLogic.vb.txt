@@ -1,0 +1,577 @@
+
+ SELECT *  FROM セット券_ad T WHERE 1 = 0 
+
+ SELECT *  FROM セット券販売条件_ad T WHERE 1 = 0 
+
+ SELECT *  FROM セット券ルール_ad T WHERE 1 = 0 
+
+ SELECT *  FROM セット券ルール詳細_ad T WHERE 1 = 0 
+
+ SELECT *  FROM セット券構成券種_ad T WHERE 1 = 0 
+
+ SELECT *  FROM セット券構成要素_ad T WHERE 1 = 0 
+
+ SELECT T.セット券コード,T.名称 セット券名,DECODE(T.区分,1,'固定','変動') 区分 
+ FROM セット券_ad T,公演 T2,セット券構成要素_ad T3 
+ WHERE T.ユーザーコード = :USERCD 
+ AND T.セット券コード = :SETCD 
+ AND T.名称 LIKE :SETNAME ESCAPE '\' 
+ AND T.ユーザーコード = T3.ユーザーコード 
+ AND T.セット券コード = T3.セット券コード 
+ AND T3.ユーザーコード = T2.ユーザーコード 
+ AND T3.公演コード = T2.公演コード 
+ AND T.区分 = :CATE 
+ AND T2.公演コード = :SHOWCD 
+ AND T2.公演名 LIKE :SHOWNAME 
+ AND T2.公演終了日 >= ' & wDate & ' 
+ GROUP BY T.セット券コード,T.名称,T.区分 
+ ORDER BY T.セット券コード 
+
+ SELECT * 
+ FROM セット券_ad T 
+ WHERE T.ユーザーコード = :USERCD 
+ AND T.セット券コード = :SETCD 
+
+
+ SELECT T.会員区分 会員区分CD,NVL(M.会員名称,'一般') 会員区分 
+ ,T.取扱区分 取扱区分CD,DECODE(T.取扱区分,1,'窓口',2,'電話',3,'ネット',4,'携帯','') 取扱区分 
+ ,DECODE(T.取扱フラグ,1,'○','×') 取扱,T.表示期間_開始,T.表示期間_終了,T.予約期間_開始,T.予約期間_終了 
+ FROM セット券販売条件_AD T ,会員区分 M 
+ FROM セット券販売条件_AD T ,
+      (SELECT K.ユーザーコード, K.会員区分, TO_CHAR(K.会員名称) 会員名称 FROM 会員区分 K WHERE K.ユーザーコード = :USERCD AND K.使用停止フラグ = 0 UNION ALL SELECT :USERCD ユーザーコード, 0 会員区分, TO_CHAR('一般') 会員名称 FROM DUAL  ) M 
+ WHERE T.ユーザーコード = :USERCD 
+ AND T.セット券コード = :SETCD 
+ AND T.ユーザーコード = M.ユーザーコード(+) 
+ AND T.会員区分 = M.会員区分(+) 
+ AND T.ユーザーコード = M.ユーザーコード 
+ AND T.会員区分 = M.会員区分 
+ ORDER BY T.会員区分, T.取扱区分 
+
+
+
+ SELECT 
+        KAII.会員区分cd 
+        ,KAII.会員区分 
+        ,KAII.取扱区分cd 
+        ,DECODE(KAII.取扱区分cd,1,'窓口',2,'電話',3,'ネット',4,'携帯','') 取扱区分 
+        ,DECODE(NVL(SETT.取扱フラグ,0),1,'○','×') 取扱 
+        ,SETT.表示期間_開始 
+        ,SETT.表示期間_終了 
+        ,SETT.予約期間_開始 
+        ,SETT.予約期間_終了 
+  FROM 
+     ( 
+      SELECT 
+            M.ユーザーコード 
+            ,M.会員区分cd 
+            ,M.会員区分 
+            ,T.取扱区分cd 
+            ,T.取扱区分 
+      FROM ( 
+            SELECT ユーザーコード 
+                   ,会員区分 会員区分cd 
+                   ,TO_CHAR(会員名称) 会員区分 
+            FROM 会員区分 
+            WHERE ユーザーコード = :USERCD 
+             AND 使用停止フラグ = 0 
+            UNION ALL 
+
+
+
+            SELECT :USERCD ユーザーコード 
+                   ,0::numeric 会員区分cd 
+                   ,TO_CHAR('一般') 会員区分 
+            FROM DUAL 
+           ) M,
+           (SELECT ユーザーコード 
+                   ,取扱区分 取扱区分cd 
+                   ,DECODE(取扱区分,1,'窓口',2,'電話',3,'ネット',4,'携帯','') 取扱区分 
+            FROM ユーザー取扱 
+            WHERE ユーザーコード = :USERCD 
+              AND 予約期間区分 = 1 
+              AND 取扱区分 IN(3,4) 
+           ) T 
+      WHERE M.ユーザーコード = :USERCD 
+        AND M.ユーザーコード = T.ユーザーコード 
+     ) KAII, 
+     ( 
+      SELECT * FROM セット券販売条件_ad 
+       WHERE ユーザーコード = :USERCD 
+         AND セット券コード = :SETCD 
+     ) SETT 
+  WHERE KAII.ユーザーコード = SETT.ユーザーコード(+) 
+    AND KAII.会員区分cd     = SETT.会員区分(+) 
+    AND KAII.取扱区分cd     = SETT.取扱区分(+) 
+  ORDER BY 会員区分cd,取扱区分cd 
+
+ SELECT * 
+ FROM セット券ルール_ad T 
+ WHERE T.ユーザーコード = :USERCD 
+ AND T.セット券コード = :SETCD 
+
+ SELECT T.選択コード 選択順,T.要素コード,T.表示順位 
+ ,Y.公演コード,K.公演名,Y.公演日,N.開演時間,Y.ステージコード 
+ ,Y.席種 席種CD,S.席種名 席種 
+ ,Y.席種 席種cd,S.席種名 席種,concat(concat(Y.席種 , ':') , S.席種名略称) 表示席種 
+ FROM セット券ルール詳細_ad T ,セット券構成要素_ad Y ,公演 K ,公演日程 N ,席種 S 
+ WHERE T.ユーザーコード = :USERCD 
+ AND T.セット券コード = :SETCD 
+ AND T.ユーザーコード = Y.ユーザーコード 
+ AND T.セット券コード = Y.セット券コード 
+ AND T.要素コード = Y.要素コード 
+ AND Y.ユーザーコード = K.ユーザーコード 
+ AND Y.公演コード = K.公演コード 
+ AND Y.ユーザーコード = N.ユーザーコード 
+ AND Y.公演コード = N.公演コード 
+ AND Y.公演日 = N.公演日 
+ AND Y.ステージコード = N.ステージコード 
+ AND Y.ユーザーコード = S.ユーザーコード 
+ AND Y.公演コード = S.公演コード 
+ AND Y.席種 = S.席種 
+ ORDER BY T.選択コード, T.表示順位 
+
+ SELECT T.公演コード,K.公演名,T.券種 券種コード,P.券種名 券種 
+ FROM セット券構成券種_ad T ,公演 K ,券種 P 
+ WHERE T.ユーザーコード = :USERCD 
+ AND T.セット券コード = :SETCD 
+ AND T.ユーザーコード = K.ユーザーコード 
+ AND T.公演コード = K.公演コード 
+ AND T.ユーザーコード = P.ユーザーコード 
+ AND T.公演コード = P.公演コード 
+ AND T.券種 = P.券種 
+ ORDER BY T.券種 
+ ORDER BY T.公演コード, T.券種 
+
+
+ SELECT M.会員区分cd,M.会員区分,T.取扱区分cd ,T.取扱区分,'×'::text 取扱 
+ ,S.表示期間_開始,S.表示期間_終了,S.予約期間_開始,S.予約期間_終了 
+ FROM ( 
+   SELECT MK.ユーザーコード ,MK.会員区分 会員区分cd,TO_CHAR(MK.会員名称) 会員区分
+   FROM 会員区分 MK WHERE MK.ユーザーコード = :USERCD  
+   AND MK.使用停止フラグ = 0 
+   AND MK.使用停止フラグ = 0 
+   UNION ALL  
+
+
+
+   SELECT :USERCD ユーザーコード,0::numeric 会員区分cd,'一般' 会員区分 FROM DUAL) M, 
+   (SELECT UT.ユーザーコード ,UT.取扱区分 取扱区分cd 
+    ,DECODE(UT.取扱区分,1,'窓口',2,'電話',3,'ネット',4,'携帯','') 取扱区分 
+    FROM ユーザー取扱 UT  
+    WHERE UT.ユーザーコード = :USERCD  AND UT.予約期間区分 = 1 AND UT.取扱区分 IN(1,2,3,4)) T, 
+    WHERE UT.ユーザーコード = :USERCD  AND UT.予約期間区分 = 1 AND UT.取扱区分 IN(3,4)) T, 
+   (SELECT ST.ユーザーコード,ST.表示期間_開始,ST.表示期間_終了,ST.予約期間_開始,ST.予約期間_終了 
+    FROM セット券販売条件_ad ST WHERE 1 = 0) S 
+ WHERE M.ユーザーコード = :USERCD 
+ AND M.ユーザーコード = T.ユーザーコード 
+ AND M.ユーザーコード = S.ユーザーコード(+) 
+ ORDER BY M.会員区分cd,T.取扱区分cd 
+
+ SELECT T.会員区分 会員区分cd,NVL(M.会員名称,'一般') 会員区分 
+ ,T.取扱区分 取扱区分cd,DECODE(T.取扱区分,1,'窓口',2,'電話',3,'ネット',4,'携帯','') 取扱区分 
+ ,DECODE(T.取扱フラグ,1,'○','×') 取扱,T.表示期間_開始,T.表示期間_終了,T.予約期間_開始,T.予約期間_終了 
+ FROM セット券販売条件_ad T ,会員区分 M 
+ WHERE T.ユーザーコード = :USERCD 
+ AND T.セット券コード = :SETCD 
+ AND T.ユーザーコード = M.ユーザーコード(+) 
+ AND T.会員区分 = M.会員区分(+) 
+ ORDER BY T.会員区分, T.取扱区分 
+
+ DELETE FROM セット券_ad T 
+ WHERE T.ユーザーコード = :USERCD 
+ AND T.セット券コード = :SETCD 
+
+ DELETE FROM セット券販売条件_ad T 
+ WHERE T.ユーザーコード = :USERCD 
+ AND T.セット券コード = :SETCD 
+
+ DELETE FROM セット券ルール_ad T 
+ WHERE T.ユーザーコード = :USERCD 
+ AND T.セット券コード = :SETCD 
+
+ DELETE FROM セット券ルール詳細_ad T 
+ WHERE T.ユーザーコード = :USERCD 
+ AND T.セット券コード = :SETCD 
+
+ DELETE FROM セット券構成券種_ad T 
+ WHERE T.ユーザーコード = :USERCD 
+ AND T.セット券コード = :SETCD 
+
+ INSERT INTO セット券_ad (ユーザーコード,セット券コード,区分,名称,副題 
+ ,概要,有効フラグ,登録担当者コード,更新担当者コード,更新日) 
+ ,概要,有効フラグ,登録担当者コード,更新担当者コード,更新日,枚数制限区分 
+ ,表示順位 
+) 
+ VALUES (:USERCD,:SETCD 
+ ,' & ds.Tables(SETTICKET).Rows(0).Item(区分).ToString & ' 
+ ,' & ds.Tables(SETTICKET).Rows(0).Item(名称).ToString.Replace(', '') & ' 
+ ,' & ds.Tables(SETTICKET).Rows(0).Item(副題).ToString.Replace(', '') & ' 
+ ,' & ds.Tables(SETTICKET).Rows(0).Item(概要).ToString.Replace(', '') & ' 
+ , & Integer.Parse(ds.Tables(SETTICKET).Rows(0).Item(有効フラグ).ToString)
+ ,:TANTO 
+ ,:TANTO 
+ ,:D 
+ , & Integer.Parse(ds.Tables(SETTICKET).Rows(0).Item(枚数制限区分).ToString)
+ ,' & ds.Tables(SETTICKET).Rows(0).Item(表示順位).ToString & '  
+ ) 
+
+ INSERT INTO セット券ルール_ad (ユーザーコード,セット券コード,選択レベル,選択数,更新担当者コード,更新日) 
+ VALUES (:USERCD,b2n(':SETCD') 
+ , & Integer.Parse(ds.Tables(SETTICKETRULE).Rows(0).Item(選択レベル).ToString)
+ , & Integer.Parse(ds.Tables(SETTICKETRULE).Rows(0).Item(選択数).ToString)
+ ,b2n(':TANTO') 
+ ,b2n(':D') 
+ ) 
+
+ INSERT INTO セット券販売条件_ad (ユーザーコード,セット券コード,会員区分,取扱区分,取扱フラグ 
+ ,表示期間_開始,表示期間_終了,予約期間_開始,予約期間_終了,更新担当者コード,更新日) 
+ VALUES (:USERCD,:SETCD,:MEN,:KBN,:FLG,:DST,:DED,:YST,:YED,:TANTO,:D 
+ ) 
+
+ INSERT INTO セット券ルール詳細_ad (ユーザーコード,セット券コード,選択コード,要素コード,表示順位,更新担当者コード,更新日) 
+ VALUES (:USERCD,:SETCD,:SELECTCD,:FACTORCD,:DISP,:TANTO,:D 
+ ) 
+
+ INSERT INTO セット券構成券種_ad (ユーザーコード,セット券コード,公演コード,券種,更新担当者コード,更新日) 
+ VALUES (:USERCD,:SETCD,:SHOWCD,:PRICECD,:TANTO,:D 
+ ) 
+
+
+
+
+
+ SELECT 会員区分, 会員名称, 選択コード FROM ( 
+   SELECT 会員区分, 会員名称, 選択コード,  COUNT(*) C FROM ( 
+     SELECT 会員区分, 会員名称, 選択コード, 料金 FROM ( 
+       SELECT  V1.セット券コード,  V1.会員区分, V1.選択コード, V1.公演コード, V1.公演日, V1.ステージコード, V1.席種, V1.券種, 会員区分.会員名称, 料金.料金  
+       FROM ( 
+         SELECT ST.ユーザーコード, ST.セット券コード, SH.会員区分, SH.取扱区分, SA.選択コード, SY.公演コード, SY.公演日, SY.ステージコード, SY.席種, SP.券種 
+           FROM セット券_ad           ST, 
+                セット券販売条件_ad   SH, 
+                セット券ルール詳細_ad SA, 
+                セット券構成要素_ad   SY, 
+                セット券構成券種_ad   SP 
+          WHERE ST.ユーザーコード =  & inUserCD
+            AND ST.セット券コード = ' & inSetCD & ' 
+            AND ST.ユーザーコード = SH.ユーザーコード  
+            AND ST.セット券コード = SH.セット券コード  
+            AND SH.取扱フラグ     = 1 
+            AND SH.ユーザーコード = SA.ユーザーコード 
+            AND SH.セット券コード = SA.セット券コード 
+            AND SA.ユーザーコード = SY.ユーザーコード 
+            AND SA.セット券コード = SY.セット券コード 
+            AND SA.要素コード     = SY.要素コード 
+            AND SY.使用可否       = 1 
+            AND SY.ユーザーコード = SP.ユーザーコード 
+            AND SY.セット券コード = SP.セット券コード 
+            AND SY.公演コード     = SP.公演コード 
+       ) V1, 基本料金取扱, 料金, 会員区分 
+       WHERE V1.ユーザーコード  = 基本料金取扱.ユーザーコード 
+         AND V1.会員区分        = 基本料金取扱.会員区分 
+         AND V1.取扱区分        = 基本料金取扱.取扱区分 
+         AND V1.公演コード      = 基本料金取扱.公演コード 
+         AND V1.席種            = 基本料金取扱.席種  
+         AND V1.券種            = 基本料金取扱.券種 
+         AND 基本料金取扱.取扱フラグ = 1 
+         AND V1.ユーザーコード  = 料金.ユーザーコード 
+         AND V1.会員区分        = 料金.会員区分 
+         AND V1.公演コード      = 料金.公演コード 
+         AND V1.公演日          = 料金.公演日 
+         AND V1.ステージコード  = 料金.ステージコード 
+         AND V1.席種            = 料金.席種 
+         AND V1.券種            = 料金.券種 
+         AND V1.ユーザーコード  = 会員区分.ユーザーコード 
+         AND V1.会員区分        = 会員区分.会員区分 
+     ) 
+     GROUP BY 会員区分, 会員名称, 選択コード, 料金 
+   ) 
+   GROUP BY 会員区分, 会員名称, 選択コード 
+ ) 
+ WHERE C > 1 
+ ORDER BY 会員区分, 会員名称, 選択コード 
+
+ SELECT DISTINCT SH.会員区分, MK.会員名称, SY.公演コード, KO.公演名 
+   FROM セット券_ad ST, セット券販売条件_ad SH, セット券ルール詳細_ad SA, セット券構成要素_ad SY, 販売条件 HJ, 公演 KO, 会員区分 MK 
+  WHERE ST.ユーザーコード =  & inUserCD
+  AND ST.セット券コード = ' & inSetCD & ' 
+  AND ST.ユーザーコード = SH.ユーザーコード 
+  AND ST.セット券コード = SH.セット券コード 
+  AND SH.取扱フラグ = 1 
+  AND SH.ユーザーコード = SA.ユーザーコード 
+  AND SH.セット券コード = SA.セット券コード 
+  AND SA.ユーザーコード = SY.ユーザーコード 
+  AND SA.セット券コード = SY.セット券コード 
+  AND SA.要素コード     = SY.要素コード 
+  AND SY.使用可否 = 1 
+  AND SY.ユーザーコード = HJ.ユーザーコード 
+  AND SY.公演コード     = HJ.公演コード 
+  AND SH.会員区分       = HJ.会員区分 
+  AND HJ.公演取扱フラグ = 1 
+  AND HJ.予約期間区分 = 1 
+  AND HJ.予約方法 = 2 
+  AND SY.ユーザーコード = KO.ユーザーコード 
+  AND SY.公演コード     = KO.公演コード 
+  AND SH.ユーザーコード = MK.ユーザーコード 
+  AND SH.会員区分       = MK.会員区分 
+
+ SELECT T.ユーザーコード,T.セット券コード, MAX(公演日) M公演日,MAX(予約期間_終了) M終了日 
+ FROM セット券ルール詳細_ad T, セット券構成要素_ad SF,セット券販売条件_ad S 
+ WHERE T.ユーザーコード =  & inUserCD
+ AND T.セット券コード = ' & inSetCD & ' 
+ AND T.ユーザーコード = SF.ユーザーコード 
+ AND T.セット券コード = SF.セット券コード 
+ AND T.要素コード = SF.要素コード 
+ AND SF.使用可否 = 1 
+ AND T.ユーザーコード = S.ユーザーコード 
+ AND T.セット券コード = S.セット券コード 
+ GROUP BY T.ユーザーコード,T.セット券コード 
+
+ SELECT COUNT(*) CNT 
+   FROM セット券_ad           ST, 
+        セット券販売条件_ad   SH, 
+        セット券ルール_ad     SR, 
+        セット券ルール詳細_ad SA, 
+        セット券構成要素_ad   SY, 
+        セット券構成券種_ad   SP 
+ WHERE ST.ユーザーコード =  & inUserCD
+   AND ST.セット券コード = ' & inSetCD & ' 
+   AND ST.ユーザーコード = SH.ユーザーコード 
+   AND ST.セット券コード = SH.セット券コード 
+   AND SH.取扱フラグ     = 1 
+   AND SH.ユーザーコード = SR.ユーザーコード 
+   AND SH.セット券コード = SR.セット券コード 
+   AND SH.ユーザーコード = SA.ユーザーコード 
+   AND SH.セット券コード = SA.セット券コード 
+   AND SA.ユーザーコード = SY.ユーザーコード 
+   AND SA.セット券コード = SY.セット券コード 
+   AND SA.要素コード     = SY.要素コード 
+   AND SY.使用可否       = 1 
+   AND SY.ユーザーコード = SP.ユーザーコード 
+   AND SY.セット券コード = SP.セット券コード 
+   AND SY.公演コード     = SP.公演コード 
+
+
+
+
+
+SELECT 会員名称, 取扱区分 FROM ( 
+ SELECT 会員区分, 会員名称, DECODE(取扱区分,1,'窓口',2,'電話',3,'NET',4,'携帯','') 取扱区分, 選択数,  
+        CASE WHEN TO_NUMBER(選択数) * (TO_NUMBER(選択数) + 1) / 2 = SUM(選択コード) THEN 0 ELSE 1 END 判定 
+  FROM ( 
+   SELECT 会員区分, 会員名称, 取扱区分, 選択数, 選択コード  
+   FROM ( 
+     SELECT V1.ユーザーコード, V1.セット券コード, V1.会員区分, 会員区分.会員名称, V1.取扱区分, V1.選択数, 
+            DECODE(基本料金取扱.ユーザーコード,null,0,V1.選択コード) 選択コード 
+     FROM ( 
+       SELECT ST.ユーザーコード, ST.セット券コード, SH.会員区分, SH.取扱区分, 
+              SR.選択数, SA.選択コード, SY.公演コード, SY.公演日, 
+              SY.ステージコード, DECODE(SY.使用可否,1,SY.席種,99999999999) 席種 ,DECODE(SY.使用可否,1,SP.券種,99999999999) 券種 
+         FROM セット券_ad           ST, 
+              セット券販売条件_ad   SH, 
+              セット券ルール_ad     SR, 
+              セット券ルール詳細_ad SA, 
+              セット券構成要素_ad   SY, 
+              セット券構成券種_ad   SP 
+        WHERE ST.ユーザーコード =  & inUserCD
+          AND ST.セット券コード = ' & inSetCD & ' 
+          AND ST.ユーザーコード = SH.ユーザーコード  
+          AND ST.セット券コード = SH.セット券コード  
+          AND SH.取扱フラグ     = 1 
+          AND SH.ユーザーコード = SR.ユーザーコード 
+          AND SH.セット券コード = SR.セット券コード 
+          AND SH.ユーザーコード = SA.ユーザーコード 
+          AND SH.セット券コード = SA.セット券コード 
+          AND SA.ユーザーコード = SY.ユーザーコード 
+          AND SA.セット券コード = SY.セット券コード 
+          AND SA.要素コード     = SY.要素コード 
+          AND SY.ユーザーコード = SP.ユーザーコード 
+          AND SY.セット券コード = SP.セット券コード 
+          AND SY.公演コード     = SP.公演コード 
+     ) V1, 会員区分, 基本料金取扱 
+     WHERE V1.ユーザーコード  = 会員区分.ユーザーコード 
+       AND V1.会員区分        = 会員区分.会員区分 
+       AND V1.ユーザーコード  = 基本料金取扱.ユーザーコード(+) 
+       AND V1.会員区分        = 基本料金取扱.会員区分(+) 
+       AND V1.取扱区分        = 基本料金取扱.取扱区分(+) 
+       AND V1.公演コード      = 基本料金取扱.公演コード(+) 
+       AND V1.席種            = 基本料金取扱.席種(+) 
+       AND V1.券種            = 基本料金取扱.券種(+) 
+       AND 基本料金取扱.取扱フラグ(+) = 1 
+    ) 
+   GROUP BY 会員区分, 会員名称, 取扱区分, 選択数, 選択コード 
+ )  
+ GROUP BY 会員区分, 会員名称, 取扱区分, 選択数 ) 
+ WHERE 判定 = 1 
+ ORDER BY 会員区分, 取扱区分 
+
+ DELETE FROM セット券_ad T 
+ WHERE T.ユーザーコード = :USERCD 
+ AND T.セット券コード = :SETCD 
+
+ DELETE FROM セット券販売条件_ad T 
+ WHERE T.ユーザーコード = :USERCD 
+ AND T.セット券コード = :SETCD 
+
+ DELETE FROM セット券ルール_ad T 
+ WHERE T.ユーザーコード = :USERCD 
+ AND T.セット券コード = :SETCD 
+
+ DELETE FROM セット券ルール詳細_ad T 
+ WHERE T.ユーザーコード = :USERCD 
+ AND T.セット券コード = :SETCD 
+
+ DELETE FROM セット券構成券種_ad T 
+ WHERE T.ユーザーコード = :USERCD 
+ AND T.セット券コード = :SETCD 
+
+ DELETE FROM セット券構成要素_ad T 
+ WHERE T.ユーザーコード = :USERCD 
+ AND T.セット券コード = :SETCD 
+
+ SELECT * FROM セット券構成要素_ad T 
+ WHERE T.ユーザーコード = :USERCD 
+ AND T.セット券コード = :SETCD 
+
+ SELECT TO_NUMBER(0) 選択順,T.要素コード,TO_NUMBER(0) 表示順位 
+ ,T.公演コード,K.公演名,T.公演日,KN.開演時間,T.ステージコード 
+ ,T.席種 席種CD,S.席種名 席種 
+ ,T.席種 席種cd,S.席種名 席種,concat(concat(T.席種 , ':') , S.席種名略称) 表示席種 
+ FROM セット券構成要素_ad T ,公演 K ,公演日程 KN,席種 S 
+ WHERE T.ユーザーコード = :USERCD 
+ AND T.セット券コード = :SETCD 
+ AND T.使用可否 = 1 
+ AND T.ユーザーコード = K.ユーザーコード 
+ AND T.公演コード = K.公演コード 
+ AND K.公演コード = :SHOWCD 
+ AND K.公演名 LIKE :SHOWNAME 
+ AND T.ユーザーコード = KN.ユーザーコード 
+ AND T.公演コード = KN.公演コード 
+ AND T.公演日 = KN.公演日 
+ AND T.ステージコード = KN.ステージコード 
+ AND KN.公演日 = :SHOWDATE 
+ AND KN.開演時間 = :SHOWTIME 
+ AND T.ユーザーコード = S.ユーザーコード 
+ AND T.公演コード = S.公演コード 
+ AND T.席種 = S.席種 
+ AND S.席種名 LIKE :SEAT 
+ ORDER BY T.要素コード 
+
+ SELECT T.要素コード,T.公演コード,K.公演名,T.公演日,KN.開演時間,T.ステージコード 
+ ,T.席種 席種CD,S.席種名 席種 
+ ,T.席種 席種cd,S.席種名 席種,concat(concat(T.席種 , ':' ) , S.席種名略称) 表示席種 
+ ,T.使用可否 使用可否cd ,DECODE(T.使用可否,1,'○','×') 使用可否 
+ FROM セット券構成要素_ad T ,公演 K ,公演日程 KN,席種 S 
+ WHERE T.ユーザーコード = :USERCD 
+ AND T.セット券コード = :SETCD 
+ AND T.ユーザーコード = K.ユーザーコード 
+ AND T.公演コード = K.公演コード 
+ AND T.ユーザーコード = KN.ユーザーコード 
+ AND T.公演コード = KN.公演コード 
+ AND T.公演日 = KN.公演日 
+ AND T.ステージコード = KN.ステージコード 
+ AND T.ユーザーコード = S.ユーザーコード 
+ AND T.公演コード = S.公演コード 
+ AND T.席種 = S.席種 
+ ORDER BY T.要素コード 
+
+ SELECT TO_NUMBER(0) 要素コード 
+ ,T.公演コード,T.公演名,K.公演日,K.開演時間,K.ステージコード 
+ ,S.席種 席種CD,S.席種名 席種 
+ ,S.席種 席種cd,S.席種名 席種,concat(concat(S.席種 , ':' ) , S.席種名略称 ) 表示席種 
+ ,TO_NUMBER(1) 使用可否cd ,'○' 使用可否 
+ FROM 公演 T ,公演日程 K,席種 S,料金 R 
+ WHERE T.ユーザーコード = :USERCD 
+ AND T.公演コード = :SHOWCD 
+ AND T.公演名 LIKE :SHOWNAME 
+ AND T.公演種別 = 1 
+ AND T.ユーザーコード = K.ユーザーコード 
+ AND T.公演コード = K.公演コード 
+ AND K.公演日 = :SHOWDATE 
+ AND K.開演時間 = :SHOWTIME 
+ AND T.ユーザーコード = S.ユーザーコード 
+ AND T.公演コード = S.公演コード 
+ AND S.席種名 LIKE :SEAT 
+ AND K.ユーザーコード = R.ユーザーコード 
+ AND K.公演コード = R.公演コード 
+ AND K.公演日 = R.公演日 
+ AND K.ステージコード = R.ステージコード 
+ AND S.ユーザーコード = R.ユーザーコード 
+ AND S.公演コード = R.公演コード 
+ AND S.席種 = R.席種 
+ AND S.後日区分 = 1 
+ AND T.公演終了日 >= ' & wDate & ' 
+ GROUP BY T.公演コード,T.公演名,K.公演日,K.開演時間,K.ステージコード,S.席種,S.席種名 
+ GROUP BY T.公演コード,T.公演名,K.公演日,K.開演時間,K.ステージコード,S.席種,S.席種名,S.席種名略称 
+ ORDER BY T.公演コード, K.公演日,K.ステージコード,S.席種 
+
+ SELECT NVL(MAX(T.要素コード),0) MAXVALUE FROM セット券構成要素_ad T 
+ WHERE T.ユーザーコード = :USERCD 
+ AND T.セット券コード = :SETCD 
+
+ DELETE FROM セット券構成要素_ad T 
+ WHERE T.ユーザーコード = :USERCD 
+ AND T.セット券コード = :SETCD 
+
+ INSERT INTO セット券構成要素_ad (ユーザーコード,セット券コード,要素コード,公演コード,公演日 
+ ,ステージコード,席種,更新担当者コード,更新日,使用可否 
+ ) 
+ VALUES (:USERCD,:SETCD,:FACTOR,:SHOWCD,:SHOWDATE,:STAGE,:SEATCD,:TANTO,:D,:FLG 
+ ) 
+
+ SELECT T.公演コード,T.公演名,P.券種 券種コード,P.券種名 券種  
+ FROM 公演 T ,公演日程 K,席種 S,券種 P,料金 R 
+ ,セット券ルール詳細_AD SR,セット券構成要素_AD SF 
+ ,セット券構成要素_ad SF 
+ WHERE T.ユーザーコード = :USERCD 
+ AND T.公演コード = :SHOWCD 
+ AND T.公演名 LIKE :SHOWNAME 
+ AND T.ユーザーコード = K.ユーザーコード 
+ AND T.公演コード = K.公演コード 
+ AND K.公演日 = :SHOWDATE 
+ AND K.開演時間 = :SHOWTIME 
+ AND T.ユーザーコード = S.ユーザーコード 
+ AND T.公演コード = S.公演コード 
+ AND T.公演終了日 >= ' & wDate & ' 
+ AND S.席種名 LIKE :SEAT 
+ AND T.ユーザーコード = P.ユーザーコード 
+ AND T.公演コード = P.公演コード 
+ AND P.券種名 LIKE :PRICE 
+ AND K.ユーザーコード = R.ユーザーコード 
+ AND K.公演コード = R.公演コード 
+ AND K.公演日 = R.公演日 
+ AND K.ステージコード = R.ステージコード 
+ AND S.ユーザーコード = R.ユーザーコード 
+ AND S.公演コード = R.公演コード 
+ AND S.席種 = R.席種 
+ AND P.ユーザーコード = R.ユーザーコード 
+ AND P.公演コード = R.公演コード 
+ AND P.券種 = R.券種 
+ AND SF.ユーザーコード = :USERCD 
+ AND SF.セット券コード = :SETCD 
+ AND SF.公演コード = :SHOWCD 
+ AND SF.公演日 = :SHOWDATE 
+ AND SF.ユーザーコード = R.ユーザーコード 
+ AND SF.公演コード = R.公演コード 
+ AND SF.公演日 = R.公演日 
+ AND SF.ステージコード = R.ステージコード 
+ AND SF.席種 = R.席種 
+ AND SF.使用可否 = 1 
+ AND SF.ユーザーコード = SR.ユーザーコード 
+ AND SF.セット券コード = SR.セット券コード 
+ AND SF.要素コード = SR.要素コード 
+ GROUP BY T.公演コード,T.公演名,P.券種 ,P.券種名  
+ ORDER BY T.公演コード,T.公演名,P.券種 ,P.券種名  
+
+ DELETE FROM セット券構成要素_ad T 
+ WHERE T.ユーザーコード = :USERCD 
+ AND T.セット券コード = :SETCD 
+ AND T.更新担当者コード = :TANTO 
+
+ SELECT * FROM セット券_ad T 
+ WHERE T.ユーザーコード = :USERCD 
+ AND T.セット券コード = :SETCD 
+
+ SELECT * FROM セット券構成要素_ad T 
+ WHERE T.ユーザーコード = :USERCD 
+ AND T.セット券コード = :SETCD 
+ LIMIT 1 

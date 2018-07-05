@@ -1,0 +1,175 @@
+
+SELECT "主催者ユーザーコード" FROM "公演" "
+ WHERE "ユーザーコード" = {0} ", UserID
+   AND "公演コード" = '{0}'", ShowID
+
+SELECT COUNT("座席連番") "
+  FROM "座席販売" "
+ WHERE "ユーザーコード" = {0} ", UserID
+   AND "公演コード" = '{0}'", ShowID
+   AND "公演日" = '{0}' ", ShowDate
+   AND "ステージコード" = {0} ", StageID
+   AND "座席連番" IN ({0})", target
+
+SELECT COUNT("座席連番") "
+  FROM "座席" "
+ WHERE "ユーザーコード" = {0} ", UserID
+   AND "公演コード" = '{0}' ", ShowID
+   AND "公演日" = '{0}' ", ShowDate
+   AND "ステージコード" = {0} ", StageID
+    AND ( ( "グループコード" <> 0 ) "
+    OR  ( "取扱ユーザーコード" = 0 ) ) "
+   AND "座席連番" IN ({0})", target
+
+INSERT INTO 取引先返券(ユーザーコード,取引先ユーザーコード,予約番号,返券日,公演コード,取引先公演コード,公演日,ステージコード,
+
+"座席連番","席種","席種区分","返券ユーザーコード","返券担当者コード","更新担当者コード","更新日") SELECT "
+ {0},", agentID
+ "ユーザーコード","
+ '' AS "予約番号","
+ '{0}' AS "返券日",", rtnTicketTime
+ '{0}' AS "返券日",", nowDateStr
+ "公演コード","
+ "公演コード","
+ "公演日","
+ "ステージコード","
+ "座席連番","
+ "席種","
+ 0,"
+ {0} AS "返券ユーザーコード",", UserID
+ '{0}' AS "返券担当者コード",", UpdateID
+ '{0}',", UpdateID
+ '{0}'", updateTime
+ '{0}'", nowDateStr
+ FROM "座席" "
+ WHERE "ユーザーコード" = {0}", UserID
+ AND "公演コード" = '{0}'", ShowID
+ AND "公演日" = '{0}'", ShowDate
+ AND "ステージコード" = {0}", StageID
+   AND "座席連番" IN ({0})", target
+
+
+UPDATE 取引先返券 A SET A.席種区分 = 
+ ( SELECT B.席種区分 FROM 席種 B 
+ WHERE B.ユーザーコード = {0}, UserID
+ AND B.公演コード = '{0}', ShowID
+ AND A.席種 = B.席種 ) 
+ WHERE A.ユーザーコード = {0}, agentID
+ AND A.取引先ユーザーコード = {0}, UserID
+ AND A.返券日 = '{0}', rtnTicketTime
+ AND A.返券日 = '{0}', nowDateStr
+ AND A.公演コード = '{0}', ShowID
+ AND A.取引先公演コード = '{0}', ShowID
+ AND A.公演日 = '{0}', ShowDate
+ AND A.ステージコード = {0}, StageID
+ AND A.座席連番 IN ({0}), target
+ AND A.席種 >= 1
+
+SELECT COUNT("ユーザーコード") FROM "取引先返券" "
+ WHERE "ユーザーコード" = {0}", agentID
+ AND "取引先ユーザーコード" = {0}", UserID
+ AND "返券日" = '{0}'", rtnTicketTime
+ AND "返券日" = '{0}'", nowDateStr
+ AND "公演コード" = '{0}'", ShowID
+ AND "取引先公演コード" = '{0}'", ShowID
+ AND "公演日" = '{0}'", ShowDate
+ AND "ステージコード" = {0}", StageID
+ AND "座席連番" IN ({0})", target
+
+DELETE FROM "座席""
+ WHERE "ユーザーコード" = {0}", UserID
+ AND "公演コード" = '{0}'", ShowID
+ AND "公演日" = '{0}'", ShowDate
+ AND "ステージコード" = {0}", StageID
+ AND "座席連番" IN ({0})", target
+
+DELETE FROM 販売座席エリア
+ WHERE ユーザーコード = {0}, UserID
+ AND 公演コード = '{0}', ShowID
+ AND 公演日 = '{0}', ShowDate
+ AND ステージコード = {0}, StageID
+ AND 座席連番 IN ({0}), target
+,
+
+SELECT "主催者ユーザーコード" FROM "公演" "
+ WHERE "ユーザーコード" = {0} ", UserID
+   AND "公演コード" = '{0}'", ShowID
+
+INSERT INTO 取引先返券(ユーザーコード,取引先ユーザーコード,予約番号,返券日,公演コード,取引先公演コード,公演日,ステージコード,
+
+"座席連番","席種","席種区分","返券ユーザーコード","返券担当者コード","更新担当者コード","更新日") SELECT "
+ {0},", agentID
+ "座席"."ユーザーコード","
+ '' AS "予約番号","
+ '{0}' AS "返券日",", nowDateStr
+ "座席"."公演コード","
+ "座席"."公演コード","
+ "座席"."公演日","
+ "座席"."ステージコード","
+ "座席"."座席連番","
+ "座席"."席種","
+ 0,"
+ {0} AS "返券ユーザーコード",", UserID
+ '{0}' AS "返券担当者コード",", UpdateID
+ '{0}',", UpdateID
+ '{0}'", nowDateStr
+ FROM "座席" "
+ WHERE "座席"."ユーザーコード" = {0}", UserID
+ AND "座席"."公演コード" = '{0}'", ShowID
+ AND "座席"."公演日" = '{0}'", ShowDate
+ AND "座席"."ステージコード" = {0}", StageID
+ AND "座席"."グループコード" = 0"
+ AND "座席"."取扱ユーザーコード" = {0}", UserID
+ AND "座席"."席種" = {0}", ClassCD
+
+ AND NOT EXISTS (SELECT * FROM 座席販売 
+                  WHERE 座席販売.ユーザーコード = 座席.ユーザーコード 
+                    AND 座席販売.公演コード = 座席.公演コード 
+                    AND 座席販売.公演日 = 座席.公演日 
+                    AND 座席販売.ステージコード = 座席.ステージコード 
+                    AND 座席販売.座席連番 = 座席.座席連番 )
+
+
+UPDATE 取引先返券 A SET A.席種区分 = 
+ ( SELECT B.席種区分 FROM 席種 B 
+ WHERE B.ユーザーコード = {0}, UserID
+ AND B.公演コード = '{0}', ShowID
+ AND A.席種 = B.席種 ) 
+ WHERE A.ユーザーコード = {0}, agentID
+ AND A.取引先ユーザーコード = {0}, UserID
+ AND A.返券日 = '{0}', nowDateStr
+ AND A.公演コード = '{0}', ShowID
+ AND A.取引先公演コード = '{0}', ShowID
+ AND A.公演日 = '{0}', ShowDate
+ AND A.ステージコード = {0}, StageID
+ AND A.席種 = {0}, ClassCD
+ AND A.席種 >= 1
+
+DELETE FROM "座席""
+ WHERE "ユーザーコード" = {0}", UserID
+ AND "公演コード" = '{0}'", ShowID
+ AND "公演日" = '{0}'", ShowDate
+ AND "ステージコード" = {0}", StageID
+ AND "座席"."グループコード" = 0"
+ AND "座席"."取扱ユーザーコード" = {0}", UserID
+ AND "座席"."席種" = {0}", ClassCD
+
+ AND NOT EXISTS (SELECT * FROM 座席販売 
+                  WHERE 座席販売.ユーザーコード = 座席.ユーザーコード 
+                    AND 座席販売.公演コード = 座席.公演コード 
+                    AND 座席販売.公演日 = 座席.公演日 
+                    AND 座席販売.ステージコード = 座席.ステージコード 
+                    AND 座席販売.座席連番 = 座席.座席連番 )
+
+DELETE FROM "販売座席エリア""
+ WHERE "ユーザーコード" = {0}", UserID
+ AND "公演コード" = '{0}'", ShowID
+ AND "公演日" = '{0}'", ShowDate
+ AND "ステージコード" = {0}", StageID
+
+ AND NOT EXISTS (SELECT * FROM 座席 
+                  WHERE 販売座席エリア.ユーザーコード = 座席.ユーザーコード 
+                    AND 販売座席エリア.公演コード = 座席.公演コード 
+                    AND 販売座席エリア.公演日 = 座席.公演日 
+                    AND 販売座席エリア.ステージコード = 座席.ステージコード 
+                    AND 販売座席エリア.座席連番 = 座席.座席連番 )

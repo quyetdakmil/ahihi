@@ -1,0 +1,188 @@
+
+SELECT 席種m_ad.*, 席種備考m_ad.席種説明, 席種備考m_ad.引取説明 
+ , 席種mo_ad.席種名 As 席種名（英）, 席種mo_ad.席種名略称 As 席種名略称（英）, 席種mo_ad.ゲート As ゲート（英） 
+ , 席種mo_ad.席種説明 As 席種説明（英） 
+FROM 席種m_ad 
+LEFT JOIN 席種備考m_ad ON 席種m_ad.ユーザーコード = 席種備考m_ad.ユーザーコード 
+AND 席種m_ad.席種 = 席種備考m_ad.席種 
+LEFT JOIN 席種mo_ad ON 席種m_ad.ユーザーコード = 席種mo_ad.ユーザーコード 
+AND 席種m_ad.席種 = 席種mo_ad.席種 
+WHERE 席種m_ad.ユーザーコード = ).Append(userID
+ ORDER BY 席種m_ad.表示順位, 席種m_ad.席種 ASC 
+
+SELECT MAX("席種") AS NO FROM "席種m_ad""
+ WHERE "ユーザーコード" = ").Append(userID
+
+SELECT MAX("表示順位") AS NO FROM "席種m_ad""
+ WHERE "ユーザーコード" = ").Append(userID
+
+INSERT INTO 席種m_ad 
+ (ユーザーコード,席種,席種名,席種名略称,席種区分,引換券使用フラグ,隣席管理フラグ,ゲート,登録区分,表示色,更新担当者コード,更新日,表示順位,販売制限枚数 
+ ,後日区分 
+ ) VALUES (
+  {0}, userID
+, {0}, setdata.ClassCode
+,b2n('{0}'), setdata.ClassName
+,'{0}', setdata.ClassNameRK
+, {0}, setdata.SeatKbn
+, {0}, 0
+, {0}, setdata.NextSeatKbn
+,b2n('{0}'), setdata.ClassNameGate
+, {0}, setdata.RegKbn
+, {0}, 0
+,b2n('{0}'), updateID
+,b2n('{0}'), Date.Now.ToString(yyyy/MM/dd HH:mm:ss)
+, {0}, setdata.DisplayOrder
+, {0}, setdata.SellLimitNum
+, {0}, setdata.Assign
+ ) 
+
+INSERT INTO 席種備考m_ad 
+ (ユーザーコード,席種,席種説明,引取説明 
+ ) VALUES (
+  {0}, userID
+, {0}, setdata.ClassCode
+,b2n('{0}'), setdata.ClassDescription
+,b2n('{0}'), setdata.HikitoriDescription
+ ) 
+
+INSERT INTO 席種mo_ad 
+ (ユーザーコード,席種,席種名,席種名略称,ゲート,席種説明,引取説明,更新担当者コード,更新日 
+ ) VALUES (
+  {0}, userID
+, {0}, setdata.ClassCode
+,b2n('{0}')), setdata.ClassNameEng
+,b2n('{0}'), setdata.ClassNameRKEng
+,b2n('{0}'), setdata.ClassNameGateEng
+,b2n('{0}'), setdata.ClassDescriptionEng
+,b2n('{0}'), String.Empty
+,b2n('{0}'), updateID
+,b2n('{0}'), Date.Now.ToString(yyyy/MM/dd HH:mm:ss)
+ ) 
+
+SELECT MAX("表示順位") AS NO FROM "席種m_ad""
+ WHERE "ユーザーコード" = ").Append(userID
+
+UPDATE "席種m_ad" "
+   SET "
+ "席種名" = b2n('{0}')", setdata.ClassName
+,"席種名略称" = b2n('{0}')", setdata.ClassNameRK
+,"席種区分" = b2n('{0}')", setdata.SeatKbn
+,"隣席管理フラグ" = b2n('{0}')", setdata.NextSeatKbn
+,"ゲート" = b2n('{0}')", setdata.ClassNameGate
+,"登録区分" = b2n('{0}')", setdata.RegKbn
+,"更新担当者コード" = b2n('{0}')", updateID
+,"更新日" = b2n('{0}')", Date.Now.ToString("yyyy/MM/dd HH:mm:ss")
+,"表示順位" = b2n('{0}')", setdata.DisplayOrder
+,"販売制限枚数" = b2n('{0}')", setdata.SellLimitNum
+,"後日区分" = b2n('{0})'", setdata.Assign
+ WHERE "ユーザーコード" = ").Append(userID
+   AND "席種" = ").Append(setdata.ClassCode
+
+UPDATE "席種備考m_ad" "
+   SET "
+ "席種説明" = b2n('{0}')", setdata.ClassDescription
+,"引取説明" = b2n('{0}')", setdata.HikitoriDescription
+ WHERE "ユーザーコード" = ").Append(userID
+   AND "席種" = ").Append(setdata.ClassCode
+
+UPDATE "席種MO_AD" "
+   SET "
+ "席種名" = '{0}'", setdata.ClassNameEng
+,"席種名略称" = '{0}'", setdata.ClassNameRKEng
+,"ゲート" = '{0}'", setdata.ClassNameGateEng
+,"席種説明" = '{0}'", setdata.ClassDescriptionEng
+,"更新担当者コード" = '{0}'", updateID
+,"更新日" = '{0}'", Date.Now.ToString("yyyy/MM/dd HH:mm:ss")
+ WHERE "ユーザーコード" = ").Append(userID
+   AND "席種" = ").Append(setdata.ClassCode
+
+SELECT COUNT(*) AS 取得数 FROM "席種mo_ad""
+ WHERE "ユーザーコード" = ").Append(userID
+   AND "席種" = ").Append(setdata.ClassCode
+
+INSERT INTO 席種mo_ad 
+ (ユーザーコード,席種,席種名,席種名略称,ゲート,席種説明,引取説明,更新担当者コード,更新日 
+ ) VALUES (
+  {0}, userID
+, {0}, setdata.ClassCode
+,b2n('{0}'), setdata.ClassNameEng
+,b2n('{0}'), setdata.ClassNameRKEng
+,b2n('{0}'), setdata.ClassNameGateEng
+,b2n('{0}'), setdata.ClassDescriptionEng
+,b2n('{0}'), String.Empty
+,b2n('{0}'), updateID
+,b2n('{0}'), Date.Now.ToString(yyyy/MM/dd HH:mm:ss)
+ ) 
+
+UPDATE "席種mo_ad" "
+   SET "
+ "席種名" = b2n('{0}')", setdata.ClassNameEng
+,"席種名略称" = b2n('{0}')", setdata.ClassNameRKEng
+,"ゲート" = b2n('{0}')", setdata.ClassNameGateEng
+,"席種説明" = b2n('{0}')", setdata.ClassDescriptionEng
+,"更新担当者コード" = b2n('{0}')", updateID
+,"更新日" = b2n('{0}')", Date.Now.ToString("yyyy/MM/dd HH:mm:ss")
+ WHERE "ユーザーコード" = ").Append(userID
+   AND "席種" = ").Append(setdata.ClassCode
+
+
+UPDATE 席種 
+   SET 
+ 席種名 = '{0}', setdata.ClassName
+,席種名略称 = '{0}', setdata.ClassNameRK
+,席種区分 = '{0}', setdata.SeatKbn
+,隣席管理フラグ = '{0}', setdata.NextSeatKbn
+,ゲート = '{0}', setdata.ClassNameGate
+,登録区分 = '{0}', setdata.RegKbn
+,更新担当者コード = '{0}', updateID
+,更新日 = '{0}', Date.Now.ToString(yyyy/MM/dd HH:mm:ss)
+,表示順位 = '{0}', setdata.DisplayOrder
+,販売制限枚数 = '{0}', setdata.SellLimitNum
+ WHERE ユーザーコード = ).Append(userID
+   AND 席種 = ).Append(setdata.ClassCode
+   AND 公演コード IN 
+     (
+       SELECT 公演コード FROM 公演 
+        WHERE ユーザーコード =  ).Append(userID
+    AND 公演開始日 >= '{0}', Date.Now.ToString(yyyy/MM/dd)
+      )
+
+
+UPDATE 席種備考_AD 
+   SET 
+ 席種説明 = '{0}', setdata.ClassDescription
+,引取説明 = '{0}', setdata.HikitoriDescription
+ WHERE ユーザーコード = ).Append(userID
+   AND 席種 = ).Append(setdata.ClassCode
+   AND 公演コード IN 
+      (
+        SELECT 公演コード FROM 公演 
+         WHERE ユーザーコード =  ).Append(userID
+     AND 公演開始日 >= '{0}', Date.Now.ToString(yyyy/MM/dd)
+      )
+
+DELETE FROM "席種m_ad" "
+ WHERE "ユーザーコード" = {0} ", userID
+ AND "席種" = {0} ", classID
+
+DELETE FROM "席種備考m_ad" "
+ WHERE "ユーザーコード" = {0} ", userID
+ AND "席種" = {0} ", classID
+
+DELETE FROM "席種mo_ad" "
+ WHERE "ユーザーコード" = {0} ", userID
+ AND "席種" = {0} ", classID
+
+
+SELECT COUNT(公演コード) AS 件数 
+FROM 席種 
+WHERE ユーザーコード = ).Append(userID
+ AND 席種 = ).Append(classID
+   AND 公演コード IN 
+      (
+        SELECT 公演コード FROM 公演 
+         WHERE ユーザーコード =  ).Append(userID
+     AND 公演終了日 >= '{0}', Date.Now.ToString(yyyy/MM/dd)
+     AND 公演開始日 >= '{0}', Date.Now.ToString(yyyy/MM/dd)
+      )

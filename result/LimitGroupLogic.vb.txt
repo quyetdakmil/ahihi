@@ -1,0 +1,96 @@
+
+SELECT
+ ユーザーコード 
+,公演コード 
+,制限枚数グループコード 
+,制限枚数グループ名 
+,制限単位 
+,制限枚数 
+,更新担当者コード 
+,更新日 
+FROM 制限枚数_ad 
+WHERE ユーザーコード =  + userID.ToString
+ AND 公演コード = ' + showID + '
+ORDER BY 制限枚数グループコード 
+
+SELECT
+ ユーザーコード 
+,公演コード 
+,制限枚数グループコード 
+,枝番 
+,会員区分 
+,期間区分 
+,席種 
+,券種 
+,更新担当者コード 
+,更新日 
+FROM 制限枚数明細_ad 
+WHERE ユーザーコード =  + userID.ToString
+ AND 公演コード = ' + showID + '
+ AND 制限枚数グループコード =  + groupID.ToString
+ORDER BY
+ 制限枚数グループコード 
+,枝番
+
+SELECT MAX(制限枚数グループコード) AS NO FROM 制限枚数_ad 
+WHERE ユーザーコード = + limitGroupHeader.UserID.ToString
+ AND 公演コード = ' + limitGroupHeader.ShowID + '
+
+INSERT INTO 制限枚数_ad 
+ (
+ユーザーコード,公演コード,制限枚数グループコード,制限枚数グループ名,制限単位,制限枚数,更新担当者コード,更新日) 
+ VALUES (
+{0}, limitGroupHeader.UserID
+, b2n('{0}'), limitGroupHeader.ShowID
+, {0}, limitGroupHeader.GroupID
+, b2n('{0}'), limitGroupHeader.GroupName
+, {0}, limitGroupHeader.LimitUnit
+, {0}, limitGroupHeader.LimitNum
+, b2n('{0}'), limitGroupHeader.UpdateID
+, b2n('{0}'), Date.Now.ToString(yyyy/MM/dd HH:mm:ss)
+)
+
+UPDATE "制限枚数_ad" "
+SET"
+ "制限枚数グループ名" = b2n('{0}')", limitGroupHeader.GroupName
+, "制限単位" = {0}", limitGroupHeader.LimitUnit
+, "制限枚数" = {0}", limitGroupHeader.LimitNum
+, "更新担当者コード" = b2n('{0}')", limitGroupHeader.UpdateID
+, "更新日" = b2n('{0}')", Date.Now.ToString("yyyy/MM/dd HH:mm:ss")
+ WHERE "ユーザーコード" =" + limitGroupHeader.UserID.ToString
+ AND "公演コード" = '" + limitGroupHeader.ShowID + "'"
+ AND "制限枚数グループコード" = " + limitGroupHeader.GroupID.ToString
+
+DELETE FROM "制限枚数_ad" "
+WHERE "ユーザーコード" =" + limitGroupHeader.UserID.ToString
+ AND "公演コード" = '" + limitGroupHeader.ShowID + "'"
+ AND "制限枚数グループコード" = " + limitGroupHeader.GroupID.ToString
+
+INSERT INTO 制限枚数明細_ad 
+ (
+ユーザーコード,公演コード,制限枚数グループコード,枝番,会員区分,期間区分,席種,券種,更新担当者コード,更新日) 
+ VALUES
+ (
+{0}, limitGroupDetail.UserID
+, b2n('{0}'), limitGroupDetail.ShowID
+, {0}, limitGroupDetail.GroupID
+, {0}, limitGroupDetail.SubID
+, {0}, limitGroupDetail.MemberKbn
+, {0}, limitGroupDetail.ReserveKbn
+, {0}, limitGroupDetail.ClassID
+, {0}, limitGroupDetail.PriceKbnID
+, b2n('{0}'), limitGroupDetail.UpdateID
+, b2n('{0}'), Date.Now.ToString(yyyy/MM/dd HH:mm:ss)
+)
+
+DELETE FROM "制限枚数明細_ad" "
+WHERE "ユーザーコード" =" + limitGroupDetail.UserID.ToString
+ AND "公演コード" = '" + limitGroupDetail.ShowID + "'"
+ AND "制限枚数グループコード" = " + limitGroupDetail.GroupID.ToString
+
+SELECT
+ COUNT(ユーザーコード) 
+FROM 座席販売 
+WHERE ユーザーコード =  + userID.ToString
+ AND 公演コード = ' + showID + '
+ AND 予約販売種別 = 1

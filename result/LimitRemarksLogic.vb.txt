@@ -1,0 +1,37 @@
+
+SELECT
+ ユーザーコード 
+,公演コード 
+,会員区分 
+,期間区分 
+,累計制限説明 
+,割引制限説明 
+,更新担当者コード 
+,更新日 
+FROM 制限枚数備考_ad 
+WHERE ユーザーコード =  + userID.ToString
+ AND 公演コード = ' + showID + '
+ AND 会員区分 =  + memberKbn.ToString
+ AND 期間区分 =  + reserveKbn.ToString
+
+
+INSERT INTO 制限枚数備考_ad
+ (
+ユーザーコード,公演コード,会員区分,期間区分,累計制限説明,割引制限説明,更新担当者コード,更新日) 
+ VALUES (
+{0}, limitRemarks.UserID
+, b2n('{0}'), limitRemarks.ShowID
+, {0}, limitRemarks.MemberKbn
+, {0}, limitRemarks.ReserveKbn
+, b2n('{0}'), limitRemarks.TotalRemarks
+, b2n('{0}'), limitRemarks.DiscountRemarks
+, b2n('{0}'), limitRemarks.UpdateID
+, b2n('{0}'), Date.Now.ToString(yyyy/MM/dd HH:mm:ss)
+)
+
+DELETE"
+ FROM "制限枚数備考_ad""
+ WHERE "ユーザーコード" = " + limitRemarks.UserID.ToString
+ AND "公演コード" = '" + limitRemarks.ShowID + "'"
+ AND "会員区分" = " + limitRemarks.MemberKbn.ToString
+ AND "期間区分" = " + limitRemarks.ReserveKbn.ToString

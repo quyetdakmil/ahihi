@@ -1,0 +1,22 @@
+
+
+
+SELECT 会員区分,公演日,席種,count(座席連番) as 座席数 FROM 
+(SELECT 販売座席エリア.*,席種 FROM 販売座席エリア INNER JOIN 座席
+(SELECT /*+ USE_HASH(販売座席エリア, 座席) */ 販売座席エリア.*,席種 FROM 販売座席エリア INNER JOIN 座席
+ on 販売座席エリア.ユーザーコード = 座席.ユーザーコード AND 販売座席エリア.公演コード = 座席.公演コード AND 販売座席エリア.公演日 = 座席.公演日 AND 販売座席エリア.座席連番 = 座席.座席連番
+ on 販売座席エリア.ユーザーコード = 座席.ユーザーコード AND 販売座席エリア.公演コード = 座席.公演コード AND 販売座席エリア.公演日 = 座席.公演日 AND 販売座席エリア.ステージコード = 座席.ステージコード AND 販売座席エリア.座席連番 = 座席.座席連番
+ AND 座席.ユーザーコード = {0}, UserID
+ AND 座席.公演コード = '{0}', ShowID
+ AND 座席.公演日 = '{0}', Format(showDate, yyyy/MM/dd)
+ AND 座席.ステージコード = '{0}', showStage
+ WHERE 販売座席エリア.ユーザーコード = ).Append(UserID
+ AND 販売座席エリア.公演コード = '{0}', ShowID
+ AND 販売座席エリア.公演日 = '{0}', Format(showDate, yyyy/MM/dd)
+ AND 販売座席エリア.ステージコード = '{0}') 販売座席エリア, showStage
+ AND 販売座席エリア.公演コード = '{0}') 販売座席エリア, ShowID
+ WHERE ユーザーコード = ).Append(UserID
+ AND 公演コード = '{0}', ShowID
+ AND 公演日 = '{0}', Format(showDate, yyyy/MM/dd)
+ AND ステージコード = '{0}', showStage
+ GROUP BY 会員区分,公演日,席種

@@ -1,0 +1,116 @@
+
+SELECT 公演日 ,席種, COUNT(座席連番) AS 座席数 FROM 座席 
+ WHERE ユーザーコード = ).Append(UserID
+ AND 公演コード = '{0}', ShowID
+ AND 公演日 = '{0}', Format(showDate, yyyy/MM/dd)
+ AND ステージコード = '{0}', showStage
+ GROUP BY 公演日 ,席種 
+ ORDER BY 席種 ASC
+
+SELECT 席種, 席種名 FROM 席種 
+ WHERE ユーザーコード = ).Append(UserID
+ AND 公演コード = '{0}', ShowID
+ ORDER BY 席種 ASC
+
+SELECT T.登録日, COUNT(*) 座席数  
+ FROM 座席 T 
+ WHERE T.ユーザーコード = {0}, UserID
+ AND T.公演コード = '{0}', ShowID
+ AND T.公演日 = '{0}', Format(ShowDate, yyyy/MM/dd)
+ AND T.ステージコード = {0}, StageID
+ GROUP BY T.登録日 
+ ORDER BY T.登録日 
+
+
+
+SELECT T."登録日", T."座席連番", T."席種", S."席種名", S."表示順位",  "
+       TRIM(DECODE(J."座席ブロック管理",1,Z."ブロック",'') || ' ' ||  "
+       DECODE(J."座席ゲート管理",1,Z."ゲート",'') || ' ' ||  "
+       DECODE(J."座席階管理",1,Z."階",'') || ' ' ||  "
+       Z."列" || ' ' ||  "
+       Z."番号") "座席番号", S."席種区分"  "
+ FROM "座席" T, "席種" S, "公演" K, "会場座席" Z, "会場" J "
+ WHERE T."ユーザーコード" = {0}", UserID
+ AND T."公演コード" = '{0}'", ShowID
+ AND T."公演日" = '{0}'", Format(ShowDate, "yyyy/MM/dd")
+ AND T."ステージコード" = {0}", StageID
+ AND T."登録日" = '{0}'", RegistrationDate
+ AND T."ユーザーコード" = S."ユーザーコード" "
+ AND T."公演コード" = S."公演コード" "
+ AND T."席種" = S."席種" "
+ AND T."ユーザーコード" = K."ユーザーコード" "
+ AND T."公演コード" = K."公演コード" "
+ AND K."会場コード" = Z."会場コード" "
+ AND T."座席連番" = Z."座席連番" "
+ AND K."会場コード" = J."会場コード" "
+ ORDER BY S."表示順位", S."席種", T."座席連番" "
+ New Text.StringBuilder(
+SELECT A.座席連番 FROM 座席 A 
+ WHERE A.ユーザーコード = {0} , UserID
+ AND A.公演コード = '{0}' , ShowID
+ AND A.公演日 = '{0}' , Format(ShowDate, yyyy/MM/dd)
+ AND A.ステージコード = {0} , StageID
+ AND A.座席連番 IN ( 
+    SELECT T.座席連番 
+      FROM 座席 T 
+     WHERE T.ユーザーコード = {0} , UserID
+       AND T.公演コード = '{0}' , srcShowID
+       AND T.公演日 = '{0}' , Format(srcShowDate, yyyy/MM/dd)
+       AND T.ステージコード = {0} , srcStageID
+       AND T.登録日 = '{0}', RegistrationDate
+    ) 
+
+SELECT 公演開始日,公演名 FROM 公演 
+ WHERE ユーザーコード =  & UserID
+   AND 公演コード = ' & ShowID & ' 
+
+SELECT 公演開始日,公演名 FROM 公演 
+ WHERE ユーザーコード =  & UserID
+   AND 公演コード = ' & CopyToShowID & ' 
+
+INSERT INTO 座席 
+    (ユーザーコード,
+     公演コード,
+     公演日,
+     ステージコード,
+     座席連番,
+     席種,
+     取扱ユーザーコード,
+     登録日,
+     更新担当者コード,
+     更新日) 
+
+ SELECT "
+     A."ユーザーコード","
+'{0}' AS "公演コード",", CopyToShowID
+'{0}' AS "公演日", ", Format(CopyToShowDate, "yyyy/MM/dd")
+ {0} AS "ステージコード",", CopyToStageID
+     A."座席連番","
+     A."席種","
+     A."ユーザーコード","
+'{0}' AS "登録日",", Format(Now, "yyyy/MM/dd HH:mm:ss")
+'{0}' AS "更新担当者コード",", TantouID
+'{0}' AS "更新日" ", Format(Now, "yyyy/MM/dd HH:mm:ss")
+FROM "座席" A "
+ WHERE "
+     A."ユーザーコード"  = " & UserID & " "
+ AND A."公演コード"  = '" & ShowID & "' "
+ AND A."公演日" = '{0}' ", Format(ShowDate, "yyyy/MM/dd")
+ AND A."ステージコード" = {0} ", StageID
+ AND A."登録日" = '{0}' ", RegistrationDate
+
+ AND NOT EXISTS (SELECT * FROM 座席 B 
+           WHERE B.ユーザーコード  = {0} , UserID
+             AND B.公演コード  = '{0}' , CopyToShowID
+             AND B.公演日 = '{0}' , Format(CopyToShowDate, yyyy/MM/dd)
+             AND B.ステージコード = {0} , CopyToStageID
+                   AND A.座席連番 = B.座席連番 ) 
+
+SELECT DISTINCT "席種" FROM "席種""
+ WHERE "ユーザーコード" = "
+{0}", UserID
+ AND "公演コード" = "
+'{0}'", CopyToShowID
+ AND "席種" > 0 "
+ ORDER BY "席種" "
+ AND A."席種" IN ({0}) ", classList

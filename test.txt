@@ -1,0 +1,220 @@
+
+                    'MOD-Gettii-V4要望対応-S アイザック.朱 2011/04/13 SEQ19 ソート順対応
+
+                    'buff.Append("SELECT ")
+                    'buff.Append("ST.""座席状態"",ST.""公演コード"",ST.""公演日"",ST.""ステージコード"",ST.""席種"",")
+                    'buff.Append("ST.""連番"",ST.""座席連番"",ST.""券種"",ST.""販売料金"",ST.""表示金額"",")
+                    'buff.Append("ST.""組合せ番号"",ST.""確定日"",ST.""発券番号"",ST.""発券番号枝番"",ST.""座席通し番号"",")
+                    'buff.Append("ST.""表示形式"",ST.""表示内容"",ST.""パターンコード"",ST.""再発券日"",ST.""来場フラグ"",")
+                    'buff.Append("KO.""会場コード"",KO.""公演名"",KO.""会場名"",KA.""ブロック表示"",KB.""アプリブロック"",")
+                    'buff.Append("KS.""開演時間"",SE.""席種区分"",SE.""席種名"",SE.""席種名略称"" ")
+                    'buff.Append("FROM ")
+                    'buff.Append("""座席販売"" ST ")
+                    'buff.Append(" INNER JOIN ""公演"" KO ON ")
+                    'buff.Append("   ST.""ユーザーコード"" = KO.""ユーザーコード""")
+                    'buff.Append("   AND ST.""公演コード"" = KO.""公演コード""")
+                    'buff.Append(" INNER JOIN ""公演日程"" KS ON ")
+                    'buff.Append("   ST.""ユーザーコード"" = KS.""ユーザーコード""")
+                    'buff.Append("   AND ST.""公演コード"" = KS.""公演コード""")
+                    'buff.Append("   AND ST.""公演日"" = KS.""公演日""")
+                    'buff.Append("   AND ST.""ステージコード"" = KS.""ステージコード""")
+                    'buff.Append(" INNER JOIN ""席種"" SE ON ")
+                    'buff.Append("   ST.""ユーザーコード"" = SE.""ユーザーコード""")
+                    'buff.Append("   AND ST.""公演コード"" = SE.""公演コード""")
+                    'buff.Append("   AND ST.""席種"" = SE.""席種""")
+                    'buff.Append(" LEFT JOIN ""会場座席"" KZ ON ")
+                    'buff.Append("       KZ.""座席連番"" = ST.""座席連番""")
+                    'buff.Append("       AND KO.""会場コード"" = KZ.""会場コード""")
+                    'buff.AppendFormat(" AND KO.""ユーザーコード"" = {0}", UserID)
+                    'buff.Append(" LEFT JOIN ""会場ブロック"" KB ON ")
+                    'buff.Append("   KZ.""ネットブロック"" = KB.""ネットブロック""")
+                    'buff.Append("   AND KB.""会場コード"" = KZ.""会場コード""")
+                    'buff.Append(" LEFT JOIN ""会場"" KA ON ")
+                    'buff.Append("   KA.""会場コード"" = KZ.""会場コード""")
+                    'buff.Append("WHERE ")
+                    'buff.AppendFormat("ST.""ユーザーコード"" = {0} ", UserID)
+                    'buff.AppendFormat("AND ST.""予約番号"" = '{0}' ", ReserveNO)
+                    'Select Case FlgSeat
+                    '    Case 0
+                    '        If Not String.IsNullOrEmpty(ShowID) Then
+                    '            buff.AppendFormat("AND ST.""公演コード"" = '{0}' ", ShowID)
+                    '        Else
+                    '            buff.AppendFormat("AND ST.""公演コード"" = '{0}' ", result.ShowID)
+                    '        End If
+                    '    Case 1
+                    '        If Not String.IsNullOrEmpty(ShowID) Then
+                    '            buff.AppendFormat("AND ST.""公演コード"" <> '{0}' ", ShowID)
+                    '        Else
+                    '            buff.AppendFormat("AND ST.""公演コード"" <> '{0}' ", result.ShowID)
+                    '        End If
+                    '    Case Else
+                    '        '2以外でもエラーにしないで条件指定なし→つまりすべてを抽出対象
+                    'End Select
+                    ''If SekiID <> 0 Then
+                    ''    buff.AppendFormat("AND ST.""席種"" = '{0}' ", SekiID)
+                    ''End If
+                    ''印刷順を予約番号毎、公演日時毎、座席のブロック（アプリ）、階、列、番号の順番にするため
+                    '' アプリブロックを入れるのは、ブロックごとに階、列、番号があるため。
+                    '' 以下のcase文は、アプリブロックに' (半角スペース)','　(全角スペース)'が存在するときの対処
+                    '' oracleでの文字列ソート順は、半角スペース>半角数字>英字大文字>英字小文字>全角(全角内も半角と同様>漢字等)>null
+                    ''MOD-V4-S TNES #[4151] 2010/10/14 演劇V4GettiiP2対応
+                    ''buff.Append(" ORDER BY ST.""公演日"", KS.""開演時間"", ST.""公演コード"", ST.""ステージコード"", ")
+                    ''buff.Append(" CASE ")
+                    ''buff.Append(" WHEN KZ.""ブロック"" = ' ' THEN KZ.""ネットブロック"" ")
+                    ''buff.Append(" WHEN KZ.""ブロック"" = '　' THEN KZ.""ネットブロック"" ")
+                    ''buff.Append(" WHEN KZ.""ブロック"" IS NULL THEN KZ.""ネットブロック"" ")
+                    ''buff.Append(" ELSE KZ.""ブロック"" END, ")
+                    ''buff.Append(" TO_NUMBER(SUBSTRB(KZ.""階"", 1, INSTRB(KZ.""階"", '階')-1)), ")
+                    ''buff.Append(" TO_NUMBER(SUBSTRB(KZ.""列"", 1, INSTRB(KZ.""列"", '列')-1)), ")
+                    ''buff.Append(" KZ.""列"", ")
+                    ''buff.Append(" TO_NUMBER(SUBSTRB(KZ.""番号"", 1, INSTRB(KZ.""番号"", '番')-1)), ")
+                    ''buff.Append(" ST.""座席通し番号""")
+                    'buff.Append(" ORDER BY  ST.""公演コード"", ST.""公演日"", ST.""ステージコード"",""連番""")
+                    ''MOD-V4-E TNES #[4151] 2010/10/14 演劇V4GettiiP2対応
+
+                    '指定の場合
+                    buff.Append("SELECT ")
+                    buff.Append("""座席状態"",""公演コード"",""公演日"",""ステージコード"",""席種"",")
+                    buff.Append("""連番"",""座席連番"",""券種"",""販売料金"",""表示金額"",")
+                    buff.Append("""組合せ番号"",""確定日"",""発券番号"",""発券番号枝番"",""座席通し番号"",")
+                    '2013/04/09 年席障害QA要望表No-48 Add Start
+                    buff.Append("""入金日"",")
+                    '2013/04/09 年席障害QA要望表No-48 Add End
+                    buff.Append("""表示形式"",""表示内容"",""パターンコード"",""再発券日"",""来場フラグ"",")
+                    '[MOD START 2016/03/08 AIS S.Ikoma]管理No.2287 POSレジ連携対応
+                    'buff.Append("""会場コード"",""公演名"",""会場名"",""ブロック表示"",""アプリブロック"",")
+                    buff.Append("""会場コード"",""公演名"",""公演名略称"",""会場名"",""ブロック表示"",""アプリブロック"",")
+                    '[MOD END   2016/03/08 AIS S.Ikoma]管理No.2287 POSレジ連携対応
+                    buff.Append("""開演時間"",""席種区分"",""席種名"",""席種名略称"" ")
+                    '*** 障害管理No.2087 予約有効期限通知メールの編集項目追加 2016/01/06（イーコン（その他コンビニ）の場合も）ADD START ***
+                    buff.Append(",""階"",""列"",""番号"",""ブロック"",""ゲート"" ")
+                    '*** 障害管理No.2087 予約有効期限通知メールの編集項目追加 2016/01/06（イーコン（その他コンビニ）の場合も）ADD END   ***
+                    '*** 障害管理No.2087 携帯の場合も「座席番号」を出力する 2016/01/15 ADD START ***
+                    buff.Append(",""券種名"" ,""券種名略称"" ")
+                    '*** 障害管理No.2087 携帯の場合も「座席番号」を出力する 2016/01/15 ADD END   ***
+                    '*** 座席変更後、変更した座席が発券できない。2016/01/27 ADD START ***
+                    buff.Append(",""発券フラグ"" ,""入金フラグ"" ,""発券戻しフラグ"" ")
+                    '*** 座席変更後、変更した座席が発券できない。2016/01/27 ADD END   ***
+                    buff.Append(",""座席階管理"" ,""座席ブロック管理"" ,""座席ゲート管理"" ")   ' Add 2016/08/18 No.1975-2 管理フラグ参照対応
+                    '[ADD START 2017/05/10 AIS]管理No.2199_引取発券担当者表示対応
+                    buff.Append(",""発券担当者コード"",""再発券担当者コード"",""発券区分""")
+                    '[ADD START 2017/08/04 AIS]管理No.2199_引取発券担当者表示対応(最終発券状態の判別方法変更対応)
+                    buff.Append(", CASE WHEN ""発券日"" IS NOT NULL AND ""再発券日"" IS NULL THEN 0 ")
+                    buff.Append("       WHEN ""発券日"" IS NULL AND ""再発券日"" IS NOT NULL THEN 1 ")
+                    buff.Append("       WHEN ""発券日"" IS NOT NULL AND ""再発券日"" IS NOT NULL AND ""発券日"" > ""再発券日"" THEN 0 ")
+                    buff.Append("       WHEN ""発券日"" IS NOT NULL AND ""再発券日"" IS NOT NULL AND ""発券日"" < ""再発券日"" THEN 1 ")
+                    buff.Append("       ELSE 0 ")
+                    buff.Append("  END AS ""強制発券区分"" ")
+                    '[ADD END   2017/08/04 AIS]管理No.2199_引取発券担当者表示対応(最終発券状態の判別方法変更対応)
+                    '[MOD START 2017/08/04 AIS]管理No.2199_引取発券担当者表示対応(最終発券状態の判別方法変更対応)
+                    'buff.Append(", CASE WHEN ""発券番号枝番"" = 0 THEN ""発券担当者コード"" ")
+                    'buff.Append("       WHEN ""発券番号枝番"" > 0 THEN ""再発券担当者コード"" ELSE NULL END AS ""最終発券担当者コード"" ")
+                    buff.Append(", CASE WHEN ""発券日"" IS NOT NULL AND ""再発券日"" IS NULL THEN ""発券担当者コード"" ")
+                    buff.Append("       WHEN ""発券日"" IS NULL AND ""再発券日"" IS NOT NULL THEN ""再発券担当者コード"" ")
+                    buff.Append("       WHEN ""発券日"" IS NOT NULL AND ""再発券日"" IS NOT NULL AND ""発券日"" > ""再発券日"" THEN ""発券担当者コード"" ")
+                    buff.Append("       WHEN ""発券日"" IS NOT NULL AND ""再発券日"" IS NOT NULL AND ""発券日"" < ""再発券日"" THEN ""再発券担当者コード"" ")
+                    buff.Append("       ELSE NULL ")
+                    buff.Append("  END AS ""最終発券担当者コード"" ")
+                    '[MOD END   2017/08/04 AIS]管理No.2199_引取発券担当者表示対応(最終発券状態の判別方法変更対応)
+                    '[ADD END   2017/05/10 AIS]管理No.2199_引取発券担当者表示対応
+                    '[ADD START 2017/07/12 AIS]管理No.2199_引取発券担当者表示対応(仕様変更対応)
+                    '[MOD START 2017/08/04 AIS]管理No.2199_引取発券担当者表示対応(最終発券状態の判別方法変更対応)
+                    'buff.Append(", CASE WHEN ""発券番号枝番"" = 0 THEN ""最終発券TN"" ")
+                    'buff.Append("       WHEN ""発券番号枝番"" > 0 THEN ""最終再発券TN"" ELSE NULL END AS ""最終発券担当者名"" ")
+                    buff.Append(", CASE WHEN ""発券日"" IS NOT NULL AND ""再発券日"" IS NULL THEN ""最終発券TN"" ")
+                    buff.Append("       WHEN ""発券日"" IS NULL AND ""再発券日"" IS NOT NULL THEN ""最終再発券TN"" ")
+                    buff.Append("       WHEN ""発券日"" IS NOT NULL AND ""再発券日"" IS NOT NULL AND ""発券日"" > ""再発券日"" THEN ""最終発券TN"" ")
+                    buff.Append("       WHEN ""発券日"" IS NOT NULL AND ""再発券日"" IS NOT NULL AND ""発券日"" < ""再発券日"" THEN ""最終再発券TN"" ")
+                    buff.Append("       ELSE NULL ")
+                    buff.Append("  END AS ""最終発券担当者名"" ")
+                    '[MOD END   2017/08/04 AIS]管理No.2199_引取発券担当者表示対応(最終発券状態の判別方法変更対応)
+                    '[ADD END   2017/07/12 AIS]管理No.2199_引取発券担当者表示対応(仕様変更対応)
+                    buff.Append("FROM ")
+                    ' #symfo-cnv(splus)-v5.15.2 :tool :チェック済 SUB_QUERY
+                    buff.Append("(SELECT ")
+                    buff.Append("ST.""座席状態"",ST.""公演コード"",ST.""公演日"",ST.""ステージコード"",ST.""席種"",")
+                    buff.Append("ST.""連番"",ST.""座席連番"",ST.""券種"",ST.""販売料金"",ST.""表示金額"",")
+                    buff.Append("ST.""組合せ番号"",ST.""確定日"",ST.""発券番号"",ST.""発券番号枝番"",ST.""座席通し番号"",")
+                    '2013/04/09 年席障害QA要望表No-48 Add Start
+                    buff.Append("ST.""入金日"",")
+                    '2013/04/09 年席障害QA要望表No-48 Add End
+                    buff.Append("ST.""表示形式"",ST.""表示内容"",ST.""パターンコード"",ST.""再発券日"",ST.""来場フラグ"",")
+                    '[MOD START 2016/03/08 AIS S.Ikoma]管理No.2287 POSレジ連携対応
+                    'buff.Append("KO.""会場コード"",KO.""公演名"",KO.""会場名"",KA.""ブロック表示"",KB.""アプリブロック"",")
+                    buff.Append("KO.""会場コード"",KO.""公演名"",KO.""公演名略称"",KO.""会場名"",KA.""ブロック表示"",KB.""アプリブロック"",")
+                    '[MOD END   2016/03/08 AIS S.Ikoma]管理No.2287 POSレジ連携対応
+                    buff.Append("KS.""開演時間"",SE.""席種区分"",SE.""席種名"",SE.""席種名略称"" ")
+                    '*** 障害管理No.2087 予約有効期限通知メールの編集項目追加 2016/01/06（イーコン（その他コンビニ）の場合も）ADD START ***
+                    buff.Append(",KZ.""階"",KZ.""列"",KZ.""番号"",KZ.""ブロック"",KZ.""ゲート"" ")
+                    '*** 障害管理No.2087 予約有効期限通知メールの編集項目追加 2016/01/06（イーコン（その他コンビニ）の場合も）ADD END   ***
+                    '*** 障害管理No.2087 携帯の場合も「座席番号」を出力する 2016/01/15 ADD START ***
+                    buff.Append(",KN.""券種名"" ,KN.""券種名略称"" ")
+                    '*** 障害管理No.2087 携帯の場合も「座席番号」を出力する 2016/01/15 ADD END   ***
+                    '*** 座席変更後、変更した座席が発券できない。2016/01/27 ADD START ***
+                    buff.Append(",ST.""発券フラグ"" ,ST.""入金フラグ"" ,ST.""発券戻しフラグ"" ")
+                    '*** 座席変更後、変更した座席が発券できない。2016/01/27 ADD END   ***
+                    '2016/05/02 障害QA管理表No.1976 Add Start
+                    buff.Append(" ,NVL(KJ.""出力順"",1) ""出力順"" ")
+                    '2016/05/02 障害QA管理表No.1976 Add End
+                    buff.Append(", KA.""座席階管理"", KA.""座席ブロック管理"", KA.""座席ゲート管理"" ")  ' Add 2016/08/18 No.1975-2 管理フラグ参照対応
+                    '[ADD START 2017/05/10 AIS]管理No.2199_引取発券担当者表示対応
+                    buff.Append(",ST.""発券担当者コード"",ST.""再発券担当者コード"",ST.""発券区分"" ")
+                    '[ADD END   2017/05/10 AIS]管理No.2199_引取発券担当者表示対応
+                    '[ADD START 2017/07/12 AIS]管理No.2199_引取発券担当者表示対応(仕様変更対応)
+                    buff.Append(",""発券T"".""最終発券TN"",""再発券T"".""最終再発券TN"" ")
+                    '[ADD END   2017/07/12 AIS]管理No.2199_引取発券担当者表示対応(仕様変更対応)
+                    '[ADD START 2017/08/04 AIS]管理No.2199_引取発券担当者表示対応(最終発券状態の判別方法変更対応)
+                    buff.Append(",ST.""発券日"" ")
+                    '[ADD END   2017/08/04 AIS]管理No.2199_引取発券担当者表示対応(最終発券状態の判別方法変更対応)
+                    buff.Append("FROM ")
+                    buff.Append("""座席販売"" ST ")
+                    buff.Append(" INNER JOIN ""公演"" KO ON ")
+                    buff.Append("   ST.""ユーザーコード"" = KO.""ユーザーコード""")
+                    buff.Append("   AND ST.""公演コード"" = KO.""公演コード""")
+                    buff.Append(" INNER JOIN ""公演日程"" KS ON ")
+                    buff.Append("   ST.""ユーザーコード"" = KS.""ユーザーコード""")
+                    buff.Append("   AND ST.""公演コード"" = KS.""公演コード""")
+                    buff.Append("   AND ST.""公演日"" = KS.""公演日""")
+                    buff.Append("   AND ST.""ステージコード"" = KS.""ステージコード""")
+                    buff.Append(" INNER JOIN ""席種"" SE ON ")
+                    buff.Append("   ST.""ユーザーコード"" = SE.""ユーザーコード""")
+                    buff.Append("   AND ST.""公演コード"" = SE.""公演コード""")
+                    buff.Append("   AND ST.""席種"" = SE.""席種""")
+                    '*** 障害管理No.2087 携帯の場合も「座席番号」を出力する 2016/01/15 ADD START ***
+                    buff.Append(" INNER JOIN ""券種"" KN ON ")
+                    buff.Append("   ST.""ユーザーコード"" = KN.""ユーザーコード""")
+                    buff.Append("   AND ST.""公演コード"" = KN.""公演コード""")
+                    buff.Append("   AND ST.""券種"" = KN.""券種""")
+                    '*** 障害管理No.2087 携帯の場合も「座席番号」を出力する 2016/01/15 ADD END   ***
+                    buff.Append(" LEFT JOIN ""会場座席"" KZ ON ")
+                    buff.Append("       KZ.""座席連番"" = ST.""座席連番""")
+                    buff.Append("       AND KO.""会場コード"" = KZ.""会場コード""")
+                    buff.AppendFormat(" AND KO.""ユーザーコード"" = {0}", UserID)
+                    buff.Append(" LEFT JOIN ""会場ブロック"" KB ON ")
+                    buff.Append("   KZ.""ネットブロック"" = KB.""ネットブロック""")
+                    buff.Append("   AND KB.""会場コード"" = KZ.""会場コード""")
+                    buff.Append(" LEFT JOIN ""会場"" KA ON ")
+                    buff.Append("   KA.""会場コード"" = KZ.""会場コード""")
+                    '2016/05/02 障害QA管理表No.1976 Add Start
+                    buff.Append(" LEFT JOIN ""会場出力順"" KJ on KZ.""会場コード"" = KJ.""会場コード"" ")
+                    buff.Append(" AND KZ.""座席連番"" = KJ.""座席連番"" ")
+                    '2016/05/02 障害QA管理表No.1976 Add End
+                    '[ADD START 2017/07/12 AIS]管理No.2199_引取発券担当者表示対応(仕様変更対応)
+                    '最終発券担当者名取得
+                    ' #symfo-cnv(splus)-v5.15.2 :tool :チェック済 SUB_QUERY
+                    buff.Append(" LEFT JOIN (SELECT ""担当者"".""ユーザーコード"" AS ""発券TUC"",""担当者"".""担当者コード"" AS ""発券TC"",""担当者"".""担当者名"" AS ""最終発券TN"" ")
+                    buff.Append("            FROM ""担当者"" ")
+                    buff.AppendFormat("     WHERE ""担当者"".""ユーザーコード"" = {0}", UserID)
+                    buff.Append(" ) ""発券T"" ON ST.""ユーザーコード"" =  ""発券T"".""発券TUC"" ")
+                    buff.Append(" AND ST.""発券担当者コード"" = ""発券T"".""発券TC"" ")
+                    '最終再発券担当者名取得
+                    ' #symfo-cnv(splus)-v5.15.2 :tool :チェック済 SUB_QUERY
+                    buff.Append(" LEFT JOIN (SELECT ""担当者"".""ユーザーコード"" AS ""再発券TUC"",""担当者"".""担当者コード"" AS ""再発券TC"",""担当者"".""担当者名"" AS ""最終再発券TN"" ")
+                    buff.Append("            FROM ""担当者"" ")
+                    buff.AppendFormat("     WHERE ""担当者"".""ユーザーコード"" = {0}", UserID)
+                    buff.Append(" ) ""再発券T"" ON ST.""ユーザーコード"" =  ""再発券T"".""再発券TUC"" ")
+                    buff.Append(" AND ST.""再発券担当者コード"" = ""再発券T"".""再発券TC"" ")
+                    '[ADD END   2017/07/12 AIS]管理No.2199_引取発券担当者表示対応(仕様変更対応)
+                    buff.Append("WHERE ")
+                    buff.AppendFormat("ST.""ユーザーコード"" = {0} ", UserID)
+                    buff.AppendFormat("AND ST.""予約番号"" = '{0}' ", ReserveNO)

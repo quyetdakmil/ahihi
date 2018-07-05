@@ -1,0 +1,37 @@
+
+ SELECT *  FROM c_支払詳細 T WHERE T.ユーザーコード =  & userCD &  AND 1 = 0 
+
+ SELECT T.表示順位 ,T.詳細cd,T.支払詳細名,T.詳細区分 削除区分 
+       ,DECODE(T.詳細区分,0,'可','不可') 可不可 
+ FROM c_支払詳細 T 
+ WHERE T.ユーザーコード =  & userCD
+ AND T.支払詳細名 LIKE '% & name & %' 
+ ORDER BY T.ユーザーコード,T.表示順位,T.詳細cd 
+
+ SELECT NVL(MAX(T.詳細cd),0) VAL 
+ FROM c_支払詳細 T  
+ WHERE T.ユーザーコード =  & userCD &  AND T.詳細cd <> 98 
+
+ INSERT INTO c_支払詳細 (ユーザーコード,詳細cd,表示順位,支払詳細名,詳細区分) 
+
+ SELECT  & userCD
+  ,MAX(T.詳細cd) + 1 
+  , & Integer.Parse(ds.Tables(PAYMENTDETAIL).Rows(0).Item(表示順位).ToString)
+ ,' & ds.Tables(PAYMENTDETAIL).Rows(0).Item(支払詳細名).ToString & ' 
+  , & Integer.Parse(ds.Tables(PAYMENTDETAIL).Rows(0).Item(詳細区分).ToString)
+  FROM c_支払詳細 T  
+  WHERE T.ユーザーコード =  & userCD &  AND T.詳細cd <> 98 
+
+ UPDATE "c_支払詳細" T "
+ SET T."表示順位" = " & Integer.Parse(ds.Tables("PAYMENTDETAIL").Rows(0).Item("表示順位").ToString)
+    ,T."支払詳細名" = '" & ds.Tables("PAYMENTDETAIL").Rows(0).Item("支払詳細名").ToString & "'"
+ WHERE T."ユーザーコード" = " & userCD
+   AND T."詳細cd" = " & Integer.Parse(ds.Tables("PAYMENTDETAIL").Rows(0).Item("詳細cd").ToString)
+
+ SELECT COUNT(*) CT "
+ FROM "一般予約支払詳細" T  "
+ WHERE T."ユーザーコード" = " & userCD & " AND T."支払詳細" = " & inCD
+
+ DELETE FROM "c_支払詳細" T "
+ WHERE T."ユーザーコード" = " & userCD
+   AND T."詳細cd" = " & inCD

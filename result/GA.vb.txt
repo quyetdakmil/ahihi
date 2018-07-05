@@ -1,0 +1,73 @@
+
+SELECT A."トラッキングid" "
+      ,A."cディメンション使用可否" "
+      ,A."ecトラッキング使用可否" "
+      ,A."クロスドメイン使用可否" "
+      ,A."取消フラグ" "
+ FROM "ga_アカウント" A "
+ WHERE A."ユーザーコード" = {0}", UserID
+
+SELECT KD.ドメイン 
+ FROM ga_クロスドメイン KD 
+ WHERE KD.ユーザーコード = {0}, UserID
+ ORDER BY KD.ドメイン 
+
+SELECT M.区分 
+      ,M.ディメンション名 
+      ,DECODE(T.インデックス, NULL, M.インデックス, T.インデックス) インデックス 
+ FROM ga_ディメンションマスタ M, ga_ディメンション T 
+ WHERE T.ユーザーコード(+) = {0}, UserID
+ AND M.区分 = T.区分(+) 
+ ORDER BY M.区分 
+
+SELECT COUNT(*) "
+ FROM "ga_アカウント" A "
+ WHERE A."ユーザーコード" = {0}", UserID
+
+INSERT INTO ga_アカウント 
+(ユーザーコード,トラッキングid,cディメンション使用可否,ecトラッキング使用可否,クロスドメイン使用可否,取消フラグ, 更新担当者コード,更新日 
+ ) VALUES (
+  {0}, UserID
+ ,b2n('{0}') , GaInfo.TrackingCd
+ ,{0} , GaInfo.FlgCustomDimension
+ ,{0} , GaInfo.FlgECTracking
+ ,{0} , GaInfo.FlgCrossDomain
+ ,{0} , GaInfo.FlgDelete
+ ,b2n('{0}') , UpdateID
+ ,b2n('{0}') , time
+ ) 
+
+UPDATE "ga_アカウント" A SET "
+  A."トラッキングid" = b2n('{0}') ", GaInfo.TrackingCd
+ ,A."cディメンション使用可否" = {0} ", GaInfo.FlgCustomDimension
+ ,A."ecトラッキング使用可否" = {0} ", GaInfo.FlgECTracking
+ ,A."クロスドメイン使用可否" = {0} ", GaInfo.FlgCrossDomain
+ ,A."取消フラグ" = {0} ", GaInfo.FlgDelete
+ ,A."更新担当者コード" = b2n('{0}') ", UpdateID
+ ,A."更新日" = b2n('{0}') ", time
+ WHERE A."ユーザーコード" = {0}", UserID
+
+DELETE FROM "ga_クロスドメイン" KD "
+ WHERE KD."ユーザーコード" = {0}", UserID
+
+INSERT INTO ga_クロスドメイン 
+(ユーザーコード,ドメイン,更新担当者コード,更新日 
+ ) VALUES (
+  {0}, UserID
+ ,b2n('{0}') , GaInfo.CrossDomain(ix).Domain
+ ,b2n('{0}') , UpdateID
+ ,b2n('{0}') , time
+ ) 
+
+DELETE FROM "ga_ディメンション" T "
+ WHERE T."ユーザーコード" = {0}", UserID
+
+INSERT INTO ga_ディメンション 
+(ユーザーコード,区分,インデックス,更新担当者コード,更新日 
+ ) VALUES (
+  {0}, UserID
+ ,{0} , GaInfo.Dimension(ix).Kbn
+ ,{0} , GaInfo.Dimension(ix).Index
+ ,b2n('{0}') , UpdateID
+ ,b2n('{0}') , time
+ ) 

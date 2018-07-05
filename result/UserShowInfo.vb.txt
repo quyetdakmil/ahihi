@@ -1,0 +1,137 @@
+
+ SELECT  "
+     "表示画像登録" "
+    ,"拡大画像登録" "
+    ,"任意１登録" "
+    ,"スタッフ登録" "
+    ,"出演曲目カード登録" "
+    ,"出演登録" "
+    ,"曲目登録" "
+    ,"見どころ概要登録" "
+    ,"発売情報登録" "
+    ,"任意２登録" "
+    ,"表示画像リスト" "
+    ,"拡大画像リスト" "
+    ,"任意１リスト" "
+    ,"スタッフリスト" "
+    ,"出演曲目カードリスト" "
+    ,"出演リスト" "
+    ,"曲目リスト" "
+    ,"見どころ概要リスト" "
+    ,"発売情報リスト" "
+    ,"任意２リスト" "
+    ,"公演概要使用フラグ" "
+    ,"エリア小コード" "
+    ,"エリア中コード" "
+    ,"エリア大コード" "
+    ,"発売期間表示フラグ" "
+    ,"会場用ｕｒｌ" "
+    ,"ポータルサイト公開区分" "
+    ,"ポータルサイト用ジャンルコード" "
+    ,"ポータル用都道府県コード" "
+    ,"ポータル用市区コード" "
+    ,"ポータルサイト用会員区分" "
+    ,"ポータルサイト用販売区分" "
+    ,"ポータル表示任意１" "
+    ,"ポータル表示スタッフ" "
+    ,"ポータル表示出演曲目カード" "
+    ,"ポータル表示出演" "
+    ,"ポータル表示曲目" "
+    ,"ポータル表示見どころ概要" "
+    ,"ポータル表示発売情報" "
+    ,"ポータル表示任意２" "
+ FROM "ユーザー公演情報_ad" "
+ WHERE "ユーザーコード" = " & inUserID
+
+ DELETE FROM "ユーザー公演情報_ad" "
+ WHERE "ユーザーコード" = " & inUserID
+
+ INSERT INTO ユーザー公演情報_ad (
+     ユーザーコード 
+    ,表示画像登録 
+    ,拡大画像登録 
+    ,任意１登録 
+    ,スタッフ登録 
+    ,出演曲目カード登録 
+    ,出演登録 
+    ,曲目登録 
+    ,見どころ概要登録 
+    ,発売情報登録 
+    ,任意２登録 
+    ,表示画像リスト 
+    ,拡大画像リスト 
+    ,任意１リスト 
+    ,スタッフリスト 
+    ,出演曲目カードリスト 
+    ,出演リスト 
+    ,曲目リスト 
+    ,見どころ概要リスト 
+    ,発売情報リスト 
+    ,任意２リスト 
+    ,公演概要使用フラグ 
+    ,エリア小コード 
+    ,エリア中コード 
+    ,エリア大コード 
+    ,発売期間表示フラグ 
+    ,会場用ｕｒｌ 
+    ,ポータルサイト公開区分 
+    ,ポータルサイト用ジャンルコード 
+    ,ポータル用都道府県コード 
+    ,ポータル用市区コード 
+    ,ポータルサイト用会員区分 
+    ,更新担当者コード 
+    ,更新日 
+    ,ポータルサイト用販売区分 
+    ,ポータル表示任意１ 
+    ,ポータル表示スタッフ 
+    ,ポータル表示出演曲目カード 
+    ,ポータル表示出演 
+    ,ポータル表示曲目 
+    ,ポータル表示見どころ概要 
+    ,ポータル表示発売情報 
+    ,ポータル表示任意２ 
+    ) VALUES ( 
+  {0}, inUserID
+, {0}, inShowinfo.RegiDisp
+, {0}, inShowinfo.RegiLDisp
+, {0}, inShowinfo.RegiAny1
+, {0}, inShowinfo.RegiStaff
+, {0}, inShowinfo.RegiEtc
+, {0}, inShowinfo.RegiAppear
+, {0}, inShowinfo.RegiTunes
+, {0}, inShowinfo.RegiOutline
+, {0}, inShowinfo.RegiSaleInfo
+, {0}, inShowinfo.RegiAny2
+, {0}, inShowinfo.ListDisp
+, {0}, inShowinfo.ListLDisp
+, {0}, inShowinfo.ListAny1
+, {0}, inShowinfo.ListStaff
+, {0}, inShowinfo.ListEtc
+, {0}, inShowinfo.ListAppear
+, {0}, inShowinfo.ListTunes
+, {0}, inShowinfo.ListOutline
+, {0}, inShowinfo.ListSaleInfo
+, {0}, inShowinfo.ListAny2
+, {0}, inShowinfo.UseShowFlg
+, {0}, inShowinfo.AreaSyoCode
+, {0}, inShowinfo.AreaCyuCode
+, {0}, inShowinfo.AreaDaiCode
+, {0}, inShowinfo.flgSellKikan
+, b2n('{0}'), inShowinfo.HallURL
+, {0}, inShowinfo.PortalKbn
+, {0}, inShowinfo.PortalGenre
+, b2n('{0}'), inShowinfo.PortalJapan
+, b2n('{0}'), inShowinfo.PortalAddress
+, {0}, inShowinfo.PortalMemberKbn
+, b2n('{0}'), inTanto
+, b2n('{0}'), Format(Now(), yyyy/MM/dd HH:mm:ss)
+, {0}, inShowinfo.PortalSalesKbn
+, {0}, inShowinfo.PortAny1
+, {0}, inShowinfo.PortStaff
+, {0}, inShowinfo.PortEtc
+, {0}, inShowinfo.PortAppear
+, {0}, inShowinfo.PortTunes
+, {0}, inShowinfo.PortOutline
+, {0}, inShowinfo.PortSaleInfo
+, {0}, inShowinfo.PortAny2
+    ) 
