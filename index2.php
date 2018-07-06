@@ -32,10 +32,10 @@ and open the template in the editor.
 						<input class="form-control" value="submit" type="submit">
 					</div>
 					<div class="col-md-6">
-						<textarea rows="7" class="form-control" name="output"></textarea>
+						<textarea rows="7" class="form-control" name="output" style="width: 400px; height: 400px;"></textarea>
 					</div>
 					<div style="padding-top: 80px" class="col-md-offset-4 col-md-4">
-						<input type="text" name="varValue" value= "2">
+						<input type="text" name="varValue" value="1">
 					</div>
 				</div>
 			</form>
