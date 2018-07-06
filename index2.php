@@ -35,7 +35,7 @@ and open the template in the editor.
 						<textarea rows="7" class="form-control" name="output"></textarea>
 					</div>
 					<div style="padding-top: 80px" class="col-md-offset-4 col-md-4">
-						<input type="text" name="varValue">
+						<input type="text" name="varValue" value= "2">
 					</div>
 				</div>
 			</form>
