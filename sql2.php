@@ -35,6 +35,7 @@
 		}
 		$rp = str_replace("\"", "", $sql[1][$i]);
 		$rp = preg_replace($filter4, $varValue, $rp);
+		$rp = str_replace('{0}', $varValue, $rp);
 		echo $rp."<br/>";
 	}
 
